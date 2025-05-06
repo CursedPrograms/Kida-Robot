@@ -19,6 +19,18 @@
   <img alt="Batch" src="https://img.shields.io/badge/Batch-%23323330.svg?&style=for-the-badge&logo=windows&logoColor=white"/>
   </div>
   <br>
+  
+```bash
+[12V Battery Pack]
+ ├── + ─────────► L298N VS       (motor power input)
+ ├── + ─────────► LM2596S IN+    (step-down input for Pi)
+ ├── – ─────────► L298N GND
+ └── – ─────────► LM2596S IN–
+
+[LM2596S Output]
+ ├── OUT+ ──────► Pi 5V (GPIO pin 2 or 4, or via USB-C adapter cable)
+ └── OUT– ──────► Pi GND (GPIO pin 6 or 9)
+```
 
 # Python-Template
 
