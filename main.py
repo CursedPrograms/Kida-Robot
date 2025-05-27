@@ -44,9 +44,9 @@ def main():
             "description": "Remote Control SSH",
             "file_name": "scripts/script01.py"
         },
-        "4": {
-            "name": "Run 'Remote Control USB'",
-            "description": "Remote Control USB",
+        "00": {
+            "name": "Run 'Install Dependencies'",
+            "description": "Install Dependencies",
             "file_name": "scripts/install_dependencies.py"
         },
     }

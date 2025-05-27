@@ -1,6 +1,6 @@
 {
     "Config": {
-      "AppName": "KIDA",
+      "AppName": "KIDA: Kinetic Interactive Drive Automaton",
       "Description": "",
       "ProjectStructure": {
         "MainScript": "main.py",
