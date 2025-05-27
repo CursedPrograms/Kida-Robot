@@ -2,13 +2,21 @@ import os
 import subprocess
 import json
 import time
-from playsound import playsound
+import pygame
 
 # Wait for 3 seconds
 time.sleep(3)
 
-# Play the sound
-playsound("audio/startup.wav")
+# Initialize pygame mixer
+pygame.mixer.init()
+
+# Load and play the sound
+pygame.mixer.music.load("audio/startup.mp3")
+pygame.mixer.music.play()
+
+# Wait until the sound finishes playing
+while pygame.mixer.music.get_busy():
+    pygame.time.Clock().tick(10)
 
 def main():
     with open('config.json') as json_file:
@@ -24,7 +32,7 @@ def main():
         "1": {
             "name": "Run 'Client'",
             "description": "Client",
-            "file_name": "scripts/script00.py"
+            "file_name": "scripts/server/os-client.py"
         },          
         "2": {
             "name": "Run 'Obstacle Avoidance'",
@@ -62,6 +70,8 @@ def main():
             
             if os.path.exists(script_file_path):
                 try:
+                    pygame.mixer.music.load("audio/confirmed.mp3")
+                    pygame.mixer.music.play()
                     subprocess.run(["python", script_file_path])
                 except Exception as e:
                     print(f"An error occurred while running the script: {e}")

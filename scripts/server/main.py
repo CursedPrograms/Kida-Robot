@@ -8,7 +8,7 @@ from playsound import playsound
 time.sleep(3)
 
 # Play the sound
-playsound("audio/startup.wav")
+playsound("audio/startup.mp3")
 
 def main():
     with open('config.json') as json_file:
@@ -62,6 +62,7 @@ def main():
             
             if os.path.exists(script_file_path):
                 try:
+                    playsound("audio/confirmed.mp3")
                     subprocess.run(["python", script_file_path])
                 except Exception as e:
                     print(f"An error occurred while running the script: {e}")
