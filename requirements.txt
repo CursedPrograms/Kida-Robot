@@ -10,3 +10,4 @@ elevenlabs==0.2.26
 torch
 torchaudio
 gTTS
+sounddevice

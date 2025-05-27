@@ -8,8 +8,11 @@ DURATION = 3  # seconds
 SAMPLE_RATE = 16000
 THRESHOLD_PHRASE = "hey kida"
 
-# Load Whisper model (use "tiny" for speed on Pi)
-model = whisper.load_model("tiny")
+# Whisper model
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '../..'))
+AUDIO_FILE = os.path.join(BASE_DIR, "input.wav")
+WHISPER_MODEL_DIR = os.path.join(BASE_DIR, "whisper-base")
+model = whisper.load_model("tiny", download_root=WHISPER_MODEL_DIR)
 
 def record_audio(duration=DURATION, fs=SAMPLE_RATE):
     print("🎙️ Listening...")
