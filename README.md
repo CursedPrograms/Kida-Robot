@@ -192,6 +192,13 @@ playsound
 openai-whisper 
 sounddevice 
 numpy
+whisper
+SpeechRecognition
+pygame
+requests
+elevenlabs==0.2.26
+torch
+torchaudio
 ```
 
 <br>
