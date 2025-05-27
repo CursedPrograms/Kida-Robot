@@ -2,13 +2,21 @@ import os
 import subprocess
 import json
 import time
-from playsound import playsound
+import pygame
 
 # Wait for 3 seconds
 time.sleep(3)
 
-# Play the sound
-playsound("audio/startup.mp3")
+# Initialize pygame mixer
+pygame.mixer.init()
+
+# Load and play the sound
+pygame.mixer.music.load("audio/startup.mp3")
+pygame.mixer.music.play()
+
+# Wait until the sound finishes playing
+while pygame.mixer.music.get_busy():
+    pygame.time.Clock().tick(10)
 
 def main():
     with open('config.json') as json_file:
@@ -24,21 +32,33 @@ def main():
         "1": {
             "name": "Run 'Client'",
             "description": "Client",
-            "file_name": "scripts/script00.py"
+            "file_name": "scripts/server/os-client.py"
         },          
         "2": {
             "name": "Run 'Obstacle Avoidance'",
             "description": "Obstacle Avoidance",
-            "file_name": "scripts/script00.py"
+            "file_name": "scripts/server/obstacle-avoidance.py"
         },
         "3": {
             "name": "Run 'Remote Control SSH",
             "description": "Remote Control SSH",
-            "file_name": "scripts/script01.py"
+            "file_name": "scripts/server/remotecontrol-ssh.py"
         },
-        "4": {
-            "name": "Run 'Remote Control USB'",
-            "description": "Remote Control USB",
+        "4": {"name": "Run 'Remote Control Keyboard",
+            "description": "Remote Control SSH",
+            "file_name": "scripts/server/remotecontrol-keyboard.py"
+        },
+        "5": {"name": "Run 'Remote Control Gamepad",
+            "description": "Remote Control SSH",
+            "file_name": "scripts/server/remotecontrol-gamepad.py"
+        },
+        "6": {"name": "Run 'Voice Command",
+            "description": "Remote Control SSH",
+            "file_name": "scripts/server/voicecommand.py"
+        },
+        "00": {
+            "name": "Run 'Install Dependencies'",
+            "description": "Install Dependencies",
             "file_name": "scripts/install_dependencies.py"
         },
     }
@@ -62,7 +82,8 @@ def main():
             
             if os.path.exists(script_file_path):
                 try:
-                    playsound("audio/confirmed.mp3")
+                    pygame.mixer.music.load("audio/confirmed.mp3")
+                    pygame.mixer.music.play()
                     subprocess.run(["python", script_file_path])
                 except Exception as e:
                     print(f"An error occurred while running the script: {e}")
