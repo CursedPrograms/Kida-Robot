@@ -22,18 +22,18 @@ def main():
 
     scripts = {
         "1": {
-            "name": "Run 'Script00'",
-            "description": "This is Script01",
+            "name": "Run 'Obstacle Avoidance'",
+            "description": "Obstacle Avoidance",
             "file_name": "scripts/script00.py"
         },
         "2": {
-            "name": "Run 'Script01",
-            "description": "This is Script01",
+            "name": "Run 'Remote Control SSH",
+            "description": "Remote Control SSH",
             "file_name": "scripts/script01.py"
         },
         "00": {
-            "name": "Run 'install_dependencies.py'",
-            "description": "Install dependencies",
+            "name": "Run 'Remote Control USB'",
+            "description": "Remote Control USB",
             "file_name": "scripts/install_dependencies.py"
         },
     }
