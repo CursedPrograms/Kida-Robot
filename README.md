@@ -24,12 +24,14 @@
 
 Rasberry Pi 5 Robot
 
+OS:
 Rasberry OS [Recommended!] (you can use any distro you choose)
 
 Parts:
 
 - Robot Tank Chassis (XiaoR Geek [Recommended!])
 - L298N Motor Driver
+- Rasberry Pi 5/4
 - Pi Speakers
 - 3x 16850 Pi UPS*
 - Pi NVME + AI Hat
@@ -40,7 +42,7 @@ Parts:
 - NVME
 - HAILO 13 TOPS
 - 1x Ultrasonic Senser
-- Rasberry Pi 5
+- 2 x Power Switches
 - DuPont Cables
 - 3x 21700 Batteries
 - 3 21700 Batterholder
@@ -76,6 +78,34 @@ Or run:
 
   
   <br>
+
+```bash
+  ~/.config/autostart
+  ```
+
+```bash
+  nano ~/.config/autostart/kida.desktop
+  ```
+
+```bash
+[Desktop Entry]
+Name=KIDA Controller
+Exec=python3 /home/pi/path/to/main.py
+Type=Application
+X-GNOME-Autostart-enabled=true
+```
+
+CRONTAB:
+
+```bash
+crontab -e
+```
+```bash
+@reboot python3 /home/pi/path/to/main.py
+```
+```bash
+sudo raspi-config
+```
 
 ### Run main.py
 
