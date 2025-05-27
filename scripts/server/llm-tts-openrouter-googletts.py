@@ -5,7 +5,10 @@ import requests
 from gtts import gTTS
 import re
 import tempfile
-from playsound import playsound
+import time
+import pygame
+import tempfile
+import re
 
 # === CONFIG ===
 
@@ -24,11 +27,11 @@ OPENROUTER_API_KEY = load_key(os.path.join(BASE_DIR, "keys/openrouter-api-key.tx
 
 # === VOICE OUTPUT USING GOOGLE TTS ===
 def speak(text):
-    # Extract expression keywords like "wink", "smile", etc.
+    # Extract expression keywords
     expression_match = re.search(r"\b(wink|smile|frown|blush)\b", text)
     expression = expression_match.group(1) if expression_match else None
 
-    # Remove the expression from spoken text
+    # Remove the expression from the spoken sentence
     spoken = re.sub(r"\b(wink|smile|frown|blush)\b", "", text)
     spoken = spoken.replace("*", "").strip()
 
@@ -39,9 +42,16 @@ def speak(text):
 
     try:
         tts = gTTS(spoken)
-        with tempfile.NamedTemporaryFile(delete=True, suffix=".mp3") as fp:
-            tts.save(fp.name)
-            playsound(fp.name)
+        tmp_path = tempfile.NamedTemporaryFile(delete=False, suffix=".mp3").name
+        tts.save(tmp_path)
+
+        pygame.mixer.init()
+        pygame.mixer.music.load(tmp_path)
+        pygame.mixer.music.play()
+
+        while pygame.mixer.music.get_busy():
+            pygame.time.Clock().tick(10)
+
     except Exception as e:
         print("Voice error:", e)
         print(spoken)
