@@ -21,20 +21,31 @@
   <br>
 
 # KIDA: Kinetic Interactive Drive Automaton
+
 Rasberry Pi 5 Robot
 
-Rasberry OS [Recommended!] (But you can use Distro)
+Rasberry OS [Recommended!] (you can use any distro you choose)
+
 Parts:
 
-- Robot Tank Chassis
+- Robot Tank Chassis (XiaoR Geek [Recommended!])
 - L298N Motor Driver
 - Pi Speakers
 - 3x 16850 Pi UPS*
+- Pi NVME + AI Hat
+- 1x Pi 5 Nightvision Camera
+- 1x Pi 5 AI Camera Camera
+- 2x Pi Camera Holder
+- Servo Motor
+- NVME
+- HAILO 13 TOPS
+- 1x Ultrasonic Senser
 - Rasberry Pi 5
 - DuPont Cables
 - 3x 21700 Batteries
 - 3 21700 Batterholder
 - 3x 16850 Batteries*
+- 1 USB Microphone
 
 Electonic Schematic:
 
