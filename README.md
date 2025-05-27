@@ -25,12 +25,12 @@
 
 # KIDA: Kinetic Interactive Drive Automaton
 
-Rasberry Pi 5 Robot
+### Rasberry Pi 5 Robot
 
-OS:
+#### OS:
 Rasberry OS [Recommended!] (you can use any distro you choose)
 
-Parts:
+#### Parts:
 
 - Robot Tank Chassis (XiaoR Geek [Recommended!])
 - L298N Motor Driver
@@ -38,8 +38,8 @@ Parts:
 - Pi Speakers
 - 3x 16850 Pi UPS*
 - Pi NVME + AI Hat
-- 1x Pi 5 Nightvision Camera
-- 1x Pi 5 AI Camera Camera
+- 1x Pi 5 Nightvision Camera (Slot 0)
+- 1x Pi 5 AI Camera Camera (Slot 1)
 - 2x Pi Camera Holder
 - Servo Motor
 - NVME
@@ -53,15 +53,15 @@ Parts:
 - 1 USB Microphone
 - 22 AWG Wire (21700 Battery Pack to L298N)
 
-Electonic Schematic:
+#### Electonic Schematic:
 
-Motor A (Left)
+##### Motor A (Left)
 L298N Pin	Function	Pi GPIO
 IN1	Direction	GPIO 17
 IN2	Direction	GPIO 27
 ENA	Speed (PWM)	GPIO 18 (hardware PWM capable)*
 
-Motor B (Right)
+##### Motor B (Right)
 L298N Pin	Function	Pi GPIO
 IN3	Direction	GPIO 22
 IN4	Direction	GPIO 23
