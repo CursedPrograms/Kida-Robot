@@ -98,6 +98,46 @@ Type=Application
 X-GNOME-Autostart-enabled=true
 ```
 
+### FFMpeg Setup (Windows)
+
+1. **Download FFMpeg**  
+   Visit the following link and download the latest static build:  
+   https://www.gyan.dev/ffmpeg/builds/
+
+2. **Extract the Archive**  
+   Unzip the downloaded archive to `C:\`.
+
+3. **Rename and Organize**  
+   Rename the extracted folder to `ffmpeg`, and ensure the following folder structure:
+
+```bash
+C:\ffmpeg\bin
+├── ffmpeg.exe
+├── ffplay.exe
+└── ffprobe.exe
+```
+
+4. **Set Environment Variable (Optional for Global Access)**  
+   To make `ffmpeg` accessible system-wide:
+
+   - Open **System Properties** > **Environment Variables**
+   - Under **User variables** (for your PC username), find and select **Path**
+   - Click **Edit** > **New** and paste:
+
+     ```
+     C:\ffmpeg\bin
+     ```
+
+   - Click **OK** to apply the changes
+  
+5. Test it
+     Close and reopen your terminal (CMD), then type:
+
+    ```
+    ffmpeg -version
+    ```
+    If it prints the version info, you're good.
+
 CRONTAB:
 
 ```bash
@@ -135,7 +175,10 @@ Unix-like systems (Linux/macOS):
 ## Requirements:
 
 ```bash
-
+playsound
+openai-whisper 
+sounddevice 
+numpy
 ```
 
 <br>

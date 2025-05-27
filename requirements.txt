@@ -1,1 +1,4 @@
 playsound
+openai-whisper 
+sounddevice 
+numpy
