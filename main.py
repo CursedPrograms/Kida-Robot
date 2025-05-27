@@ -1,6 +1,14 @@
 import os
 import subprocess
 import json
+import time
+from playsound import playsound
+
+# Wait for 3 seconds
+time.sleep(3)
+
+# Play the sound
+playsound("audio/startup.wav")
 
 def main():
     with open('config.json') as json_file:
