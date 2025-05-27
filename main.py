@@ -37,12 +37,24 @@ def main():
         "2": {
             "name": "Run 'Obstacle Avoidance'",
             "description": "Obstacle Avoidance",
-            "file_name": "scripts/script00.py"
+            "file_name": "scripts/server/obstacle-avoidance.py"
         },
         "3": {
             "name": "Run 'Remote Control SSH",
             "description": "Remote Control SSH",
-            "file_name": "scripts/script01.py"
+            "file_name": "scripts/server/remotecontrol-ssh.py"
+        },
+        "4": {"name": "Run 'Remote Control Keyboard",
+            "description": "Remote Control SSH",
+            "file_name": "scripts/server/remotecontrol-keyboard.py"
+        },
+        "5": {"name": "Run 'Remote Control Gamepad",
+            "description": "Remote Control SSH",
+            "file_name": "scripts/server/remotecontrol-gamepad.py"
+        },
+        "6": {"name": "Run 'Voice Command",
+            "description": "Remote Control SSH",
+            "file_name": "scripts/server/voicecommand.py"
         },
         "00": {
             "name": "Run 'Install Dependencies'",
