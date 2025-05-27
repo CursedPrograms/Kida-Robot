@@ -46,6 +46,7 @@ Parts:
 - 3 21700 Batterholder
 - 3x 16850 Batteries*
 - 1 USB Microphone
+- 22 AWG Wire (21700 Battery Pack to L298N)
 
 Electonic Schematic:
 
