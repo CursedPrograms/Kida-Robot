@@ -19,20 +19,36 @@
   <img alt="Batch" src="https://img.shields.io/badge/Batch-%23323330.svg?&style=for-the-badge&logo=windows&logoColor=white"/>
   </div>
   <br>
-  
+
+# KIDA: Kinetic Interactive Drive Automaton
+Rasberry Pi 5 Robot
+
+Electonic Schematic
+
+Parts:
+
+Robot Tank Chassis
+L298N Motor Driver
+Pi Speakers
+3x 16850 Pi UPS*
+Rasberry Pi 5
+DuPont Cables
+3x 21700 Batteries
+3 21700 Batterholder
+3x 16850 Batteries*
+
+
 ```bash
-[12V Battery Pack]
+[12V Battery Pack 3S 21700 Battery 3.7v]
  ├── + ─────────► L298N VS       (motor power input)
  ├── + ─────────► LM2596S IN+    (step-down input for Pi)
  ├── – ─────────► L298N GND
  └── – ─────────► LM2596S IN–
 
 [LM2596S Output]
- ├── OUT+ ──────► Pi 5V (GPIO pin 2 or 4, or via USB-C adapter cable)
+ ├── OUT+ ──────► Pi 5V (GPIO pin 2 or 4, [[Not Recommended!] Pi UPS via USB-C cable [Recommended!]])
  └── OUT– ──────► Pi GND (GPIO pin 6 or 9)
 ```
-
-# Python-Template
 
 ## How to Run:
 
