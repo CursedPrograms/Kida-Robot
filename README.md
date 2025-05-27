@@ -55,6 +55,17 @@ Parts:
 
 Electonic Schematic:
 
+Motor A (Left)
+L298N Pin	Function	Pi GPIO
+IN1	Direction	GPIO 17
+IN2	Direction	GPIO 27
+ENA	Speed (PWM)	GPIO 18 (hardware PWM capable)*
+
+Motor B (Right)
+L298N Pin	Function	Pi GPIO
+IN3	Direction	GPIO 22
+IN4	Direction	GPIO 23
+
 ```bash
 [12V Battery Pack 3S 21700 Battery 3.7v]
  ├── + ─────────► L298N VS       (motor power input)
