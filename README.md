@@ -100,9 +100,11 @@ CRONTAB:
 ```bash
 crontab -e
 ```
+
 ```bash
 @reboot python3 /home/pi/path/to/main.py
 ```
+
 ```bash
 sudo raspi-config
 ```
