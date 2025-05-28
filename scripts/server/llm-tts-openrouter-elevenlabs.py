@@ -31,26 +31,24 @@ print("🎙️ Using voice: Rachel")
 
 # === VOICE OUTPUT ===
 def speak(text):
-    # Extract expression keywords like "wink", "smile", etc. (you can expand this list)
     expression_match = re.search(r"\b(wink|smile|frown|blush)\b", text)
     expression = expression_match.group(1) if expression_match else None
 
-    # Remove the expression from spoken text
     spoken = re.sub(r"\b(wink|smile|frown|blush)\b", "", text)
     spoken = spoken.replace("*", "").strip()
 
-    # Debug print
     if expression:
         print("Expression:", expression)
     print("KIDA says:", spoken)
 
     try:
-        audio = client.generate(
+        audio_stream = client.text_to_speech.convert(
+            voice_id=selected_voice,
             text=spoken,
-            voice=selected_voice,
-            model="eleven_monolingual_v1"
+            model_id="eleven_monolingual_v1"
         )
-        play(audio)
+        audio_bytes = b"".join(audio_stream)
+        play(audio_bytes)
     except Exception as e:
         print("Voice error:", e)
         print(spoken)

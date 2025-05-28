@@ -27,6 +27,8 @@
 
 ## Rasberry Pi 5 Robot
 
+pip install git+https://github.com/elevenlabs/elevenlabs-python@v3
+
 ### OS:
 Rasberry OS [Recommended!] (you can use any distro you choose)
 
