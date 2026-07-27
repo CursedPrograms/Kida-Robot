@@ -2,3 +2,25 @@ whisper-base/
 venv/
 keys/
 /resources/
+
+# Byte-compiled / caches / logs
+__pycache__/
+*.py[cod]
+*.log
+logs/
+
+# Extracted/installed runtime binaries (rebuilt from resources/hailort, resources/piper)
+/hailort/
+/piper/
+
+# Stray recorded-audio test artifacts
+input.wav
+**/chunk.wav
+
+# Personal working notes — local only
+/for claude
+/commands
+
+# Claude Code local machine state
+.claude/settings.local.json
+.claude/*.tmp.*
