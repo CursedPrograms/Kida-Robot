@@ -161,7 +161,7 @@ frame_counter = [0]
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Detection Example")
     parser.add_argument("-n", "--net", help="Path for the network in HEF format.",
-                        default="yolov8n.hef")
+                        default=str(Path(__file__).parent.parent / "resources" / "hefs" / "yolov8n.hef"))
     parser.add_argument("-i", "--input", default="camera",
                         help="Path to the input - 'camera' for live PiCamera.")
     parser.add_argument("-b", "--batch_size", default=1, type=int, required=False,

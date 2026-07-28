@@ -138,7 +138,7 @@ def inference(
 
 
 if __name__ == "__main__":
-    model_path = os.path.join(SCRIPT_DIR, "yolo11n.pt")
+    model_path = os.path.join(SCRIPT_DIR, "..", "..", "resources", "models", "yolo11n.pt")
     tracker_path = os.path.join(SCRIPT_DIR, "trackers", "bytetrack.yaml")
 
     download_model_if_missing(model_path)

@@ -6,15 +6,30 @@ from enum import Enum
 #  Drive Mode Enum
 # ─────────────────────────────────────────────
 class DriveMode(Enum):
-    KEYBOARD   = "KEYBOARD"
-    IR_REMOTE  = "IR_REMOTE"
-    AUTONOMOUS = "AUTONOMOUS"
-    IDLE       = "IDLE"          # mode 4 / blackout state
+    KEYBOARD      = "KEYBOARD"
+    IR_REMOTE     = "IR_REMOTE"
+    AUTONOMOUS    = "AUTONOMOUS"
+    LINE_FOLLOWER = "LINE_FOLLOWER"
+    IDLE          = "IDLE"        # mode 4 / blackout state
+    WATCHDOG      = "WATCHDOG"    # mode 6 / person-detection alarm
 
 # ─────────────────────────────────────────────
 #  Active mode (single source of truth)
 # ─────────────────────────────────────────────
 drive_mode: DriveMode = DriveMode.KEYBOARD
+
+# ─────────────────────────────────────────────
+#  Voice Mode Enum
+#  Both behaviors run inside kida_chat_wakeword.py's single Hailo Whisper
+#  pipeline/thread (started once from main.py) rather than as two competing
+#  scripts, since only one process can hold the mic and the wake-word
+#  pipeline already needs the shared Hailo-8L multi-process group.
+# ─────────────────────────────────────────────
+class VoiceMode(Enum):
+    WAKEWORD   = "WAKEWORD"    # gated: must say "Hey KIDA"/"Kira"/"Robot" first
+    ALWAYS_ON  = "ALWAYS_ON"   # kida_chat.py behavior: transcribes continuously
+
+voice_mode: VoiceMode = VoiceMode.WAKEWORD
 
 # --- Basic Sensors ---
 photoValue       = "PHOTO: N/A"
@@ -40,6 +55,36 @@ motorSpeedValue  = "SPEED: N/A" #For Obstacle Avoidance & User Control
 
 # --- Debug/Status ---
 systemStatus     = "SYSTEM: Booting..."
+
+# --- YOLO inference results (written by camera_threads, read by watchdog + LLM) ---
+detection_labels: list = []   # list of (class_name: str, confidence: float)
+
+# --- IMX500 on-chip inference results (written by imx500_cam1.py) ---
+cam1_detection_labels: list = []   # list of (class_name: str, confidence: float)
+
+# --- Ambient face emotion (written by face_emotion_mode, read by HUD + LLM) ---
+detected_emotion: tuple | None = None   # (label: str, confidence: float) of the largest face in view, or None
+
+# --- UI runtime state (written by ui.py, read by server.py /status) ---
+inference_on: bool = False
+
+# --- Motor lock (written by motor_lock.py, enforced by arduino.send_command) ---
+# Starts locked — the robot must be explicitly unlocked with the password
+# every boot rather than driving away the moment it powers on.
+motor_lock: bool = True
+
+# --- Drive key scheme (KEYBOARD mode only) ---
+# "WASD"  — W/S drive both motors together, A/D rotate in place (default)
+# "QAWS"  — independent per-motor: Q/A = left motor fwd/back, W/S = right
+#           motor fwd/back. Shared across all 3 UIs (local HUD, web,
+#           remote controller) via this single flag.
+drive_scheme: str = "WASD"
+
+# --- Power monitor (written by ui.py INA219 poll, read by server.py /status) ---
+bus_v:   float = 0.0
+cur_ma:  float = 0.0
+pwr_w:   float = 0.0
+bat_pct: float = 0.0
 
 # ─────────────────────────────────────────────
 #  IR signals (written by arduino.py)

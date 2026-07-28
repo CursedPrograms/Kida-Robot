@@ -11,7 +11,7 @@
 
 import state
 from state import DriveMode
-from arduino import send_command
+from arduino import send_command, set_stopped_lights
 
 
 
@@ -26,16 +26,26 @@ def register_on_mode_change(fn):
     """Register a callback(new_mode: DriveMode) called on every mode change."""
     _on_mode_change_hooks.append(fn)
 
+# Modes that manage their own motors (Arduino's own obstacleAvoidance loop
+# for AUTONOMOUS, or a dedicated Python thread for the others). Sending STOP
+# here would race against their own start-up command (e.g. AUTO_ON sent by
+# mode_control right after this) and kill the first move — see mode_hooks.py.
+_SELF_MANAGED_MODES = (DriveMode.AUTONOMOUS, DriveMode.LINE_FOLLOWER,
+                       DriveMode.WATCHDOG)
+
+
 # ── public API ─────────────────────────────────────────────
 def set_mode(new_mode: DriveMode, *, stop_motors: bool = True) -> None:
-    """Switch to new_mode. Always stops motors first for safety."""
+    """Switch to new_mode. Stops motors first for safety, except for
+    self-managed modes (see _SELF_MANAGED_MODES) which handle their own
+    motor start-up and would race against an unconditional STOP here."""
     if state.drive_mode == new_mode:
         return
     old = state.drive_mode
     state.drive_mode = new_mode
     print(f"🔀 Mode: {old.value} → {new_mode.value}")
 
-    if stop_motors or new_mode == DriveMode.IDLE:
+    if new_mode == DriveMode.IDLE or (stop_motors and new_mode not in _SELF_MANAGED_MODES):
         _stop_all()
 
     for fn in _on_mode_change_hooks:
@@ -46,7 +56,7 @@ def set_mode(new_mode: DriveMode, *, stop_motors: bool = True) -> None:
 
 def set_mode_by_number(n: int) -> None:
     """
-    Map 1-4 keypress or IR digit to a mode.
+    Map 1-5 keypress or IR digit to a mode.
     4 is always IDLE (black input, motors stop) regardless of current mode.
     """
     mapping = {
@@ -54,6 +64,8 @@ def set_mode_by_number(n: int) -> None:
         2: DriveMode.IR_REMOTE,
         3: DriveMode.AUTONOMOUS,
         4: DriveMode.IDLE,
+        5: DriveMode.LINE_FOLLOWER,
+        6: DriveMode.WATCHDOG,
     }
     if n not in mapping:
         print(f"⚠️ Invalid mode number: {n}")
@@ -75,6 +87,12 @@ def is_autonomous() -> bool:
 def is_idle() -> bool:
     return state.drive_mode == DriveMode.IDLE
 
+def is_line_follower() -> bool:
+    return state.drive_mode == DriveMode.LINE_FOLLOWER
+
+def is_watchdog() -> bool:
+    return state.drive_mode == DriveMode.WATCHDOG
+
 
 
 # ── internal ───────────────────────────────────────────────
@@ -82,7 +100,6 @@ def _stop_all() -> None:
     """Hard-stop motors and lights on both Arduinos."""
     try:
         send_command("dev00", "STOP")
-        send_command("dev01", "LIGHT_FRONT_OFF")
-        send_command("dev01", "LIGHT_BACK_ON")
+        set_stopped_lights()
     except Exception as e:
         print(f"⚠️ stop_all error: {e}")

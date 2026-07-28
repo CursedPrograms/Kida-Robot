@@ -14,12 +14,7 @@ import subprocess
 import ollama
 warnings.filterwarnings("ignore")
 
-# ── Paths ──
-SCRIPTS_DIR  = "/home/kida-01/Desktop/Kida-Robot/scripts"
-PROJECT_DIR  = "/home/kida-01/Desktop/Kida-Robot"
 
-sys.path.insert(0, SCRIPTS_DIR)
-sys.path.insert(0, PROJECT_DIR)
 
 from hailo_whisper_pipeline import HailoWhisperPipeline
 from common.audio_utils import load_audio
@@ -33,7 +28,14 @@ from queue import Queue
 # ─────────────────────────────────────────────
 
 WHISPER_VARIANT  = "base"
-WHISPER_DURATION = 5
+WHISPER_DURATION = 8
+
+# ── Paths ──
+SCRIPTS_DIR  = "/home/kida-01/Desktop/Kida-Robot/scripts"
+PROJECT_DIR  = "/home/kida-01/Desktop/Kida-Robot"
+
+sys.path.insert(0, SCRIPTS_DIR)
+sys.path.insert(0, PROJECT_DIR)
 
 ENCODER_HEF = "/home/kida-01/Desktop/Kida-Robot/resources/hefs/h8l/base/base-whisper-encoder-5s_h8l.hef"
 DECODER_HEF = "/home/kida-01/Desktop/Kida-Robot/resources/hefs/h8l/base/base-whisper-decoder-fixed-sequence-matmul-split_h8l.hef"
@@ -45,7 +47,7 @@ LLM_TEMPERATURE = 0.95
 
 PIPER_BIN   = "/usr/bin/piper"
 PIPER_MODEL  = "/home/kida-01/Desktop/Kida-Robot/resources/tts/en_US-hfc_female-medium.onnx"
-AUDIO_PATH  = "/home/kida-01/Desktop/Kida-Robot/sampled_audio.wav"
+AUDIO_PATH  = "/home/kida-01/Desktop/Kida-Robot/audio/snippets/sampled_audio.wav"
 
 # Character personality
 _CHAR_FILE = "/home/kida-01/Desktop/Kida-Robot/scripts/character_description.txt"

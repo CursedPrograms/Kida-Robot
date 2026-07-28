@@ -6,146 +6,457 @@
     <img src="https://ko-fi.com/img/githubbutton_sm.svg" alt="ko-fi" style="width: 20%;"/>
   </a>
 </div>
-
 <div align="center">
   <img alt="Python" src="https://img.shields.io/badge/python%20-%23323330.svg?&style=for-the-badge&logo=python&logoColor=white"/>
+  <img alt="C++" src="https://img.shields.io/badge/c++%20-%23323330.svg?&style=for-the-badge&logo=c%2B%2B&logoColor=white"/>
+</div>
+
+<div align="center">
+  <img alt="Arduino" src="https://img.shields.io/badge/-Arduino-323330?style=for-the-badge&logo=arduino&logoColor=white"/>
+  <img alt="Raspberry Pi" src="https://img.shields.io/badge/-Raspberry_Pi-323330?style=for-the-badge&logo=raspberry-pi&logoColor=white"/>
+</div>
+
+<div align="center">
+  <img alt="Git" src="https://img.shields.io/badge/git%20-%23323330.svg?&style=for-the-badge&logo=git&logoColor=white"/>
   <img alt="Shell" src="https://img.shields.io/badge/Shell-%23323330.svg?&style=for-the-badge&logo=gnu-bash&logoColor=white"/>
-  <img alt="PowerShell" src="https://img.shields.io/badge/PowerShell-%23323330.svg?&style=for-the-badge&logo=powershell&logoColor=white"/>
-  <img alt="Batch" src="https://img.shields.io/badge/Batch-%23323330.svg?&style=for-the-badge&logo=windows&logoColor=white"/>
-  <img alt="RaspberryPi" src="https://img.shields.io/badge/rasberrypi-%23323330.svg?&style=for-the-badge&logo=raspberrypi&logoColor=white"/>
 </div>
 
 ---
 
 <div align="center">
-  <img src="/images/demo/kida.jpg" alt="KIDA Robot" width="600"/>
+  <img src="/images/demo/kida.jpg" alt="KIDA Robot" width="400"/>
 </div>
 
 # KIDA: Kinetic Interactive Drive Automaton
 
-- https://github.com/CursedPrograms/WHIP-Robot-v00
-- https://github.com/CursedPrograms/NORA-Robot-v00
-- https://github.com/CursedPrograms/KIDA-Robot-v00
-- https://github.com/CursedPrograms/ComCentre
+- [KIDA-Robot-v00](https://github.com/CursedPrograms/KIDA-Robot-v00)
+- [WHIP-Robot-v00](https://github.com/CursedPrograms/WHIP-Robot-v00)
+- [NORA-Robot-v00](https://github.com/CursedPrograms/NORA-Robot-v00)
+- [DREAM](https://github.com/CursedPrograms/DREAM)
+- [RIFT](https://github.com/CursedPrograms/RIFT)
 
-<div align="center">
-  <img src="/images/background.jpeg" alt="KIDA Robot" width="600"/>
-</div>
+---
 
-## Overview
+## 📖 Overview
 
-KIDA is an advanced autonomous robot platform built on Raspberry Pi 5, featuring dual-camera vision (night vision + AI camera), a Hailo-8 AI accelerator (13 TOPS), and local LLM capabilities. The robot supports voice interaction, autonomous navigation, and real-time AI inference.
+<details>
+<summary><b>Overview</b></summary>
+
+KIDA represents the pinnacle of the RIFT fleet. Built on the **Raspberry Pi 5**, it leverages the **Hailo-8L** AI accelerator to perform high-speed neural processing at the edge. With a dual-camera setup for multi-spectrum vision and local LLM integration, KIDA is designed for sophisticated human-robot interaction and autonomous decision-making without relying on the cloud.
+
+Core Features
+- [x] Neural Edge Processing: 13 TOPS of AI compute via Hailo-8L for real-time object detection and tracking.
+- [x] Hybrid Dual-Vision: Simultaneous processing of Night Vision and 4K AI camera feeds for 24/7 situational awareness.
+- [x] Local LLM Integration: Privacy-focused voice interaction and logic processing running entirely on-device.
+- [x] Autonomous Navigation: Advanced SLAM and obstacle avoidance powered by high-speed Raspberry Pi 5 architecture.
+
+</details>
 
 ---
 
 <div align="center">
-  <img src="/images/demo/KIDA001.jpg" alt="KIDA Robot" width="600"/>
+  <img src="/images/background.jpeg" alt="KIDA Robot" width="400"/>
 </div>
 
-## Hardware Specifications
+<details>
+<summary><b>Keybindings</b></summary>
 
-### Computing
-| Component | Details |
-|-----------|---------|
-| Main Board | Raspberry Pi 5 / 4 |
-| AI Accelerator | Hailo-8 (13 TOPS) via NVMe + AI Hat |
-| Storage | NVMe SSD |
+### ⚙️ Mode Selection
+Use the numeric keys to hot-swap between drive logics:
+* <kbd>1</kbd> **Switch to Mode 1** (Standard WASD Vectoring)
+* <kbd>2</kbd> **Switch to Mode 2** (Independent Tank-Style Control)
 
-### Chassis & Motion
-| Component | Details |
-|-----------|---------|
-| Chassis | XiaoR Geek Robot Tank Chassis |
-| Motor Driver | L298N × 2 |
-| Motors | Dual DC motors with tank steering |
+### 🏎️ Movement Controls
 
-### Power System
-| Component | Details |
-|-----------|---------|
-| Primary Battery | 3× 21700 (12.6V in series) |
-| Backup Battery | 3× 18650 via Pi UPS |
-| Voltage Regulator | LM2596S (12V → 5V) |
-| Power Switches | 2× (Main + Pi) |
+| Input | **Mode 1: Coordinated** | **Mode 2: Independent** |
+| :--- | :--- | :--- |
+| <kbd>Q</kbd> | — | Left Bank Forward |
+| <kbd>A</kbd> | Rotate Left | Left Bank Backward |
+| <kbd>W</kbd> | Move Forward | Right Bank Forward |
+| <kbd>S</kbd> | Move Backward | Right Bank Backward |
+| <kbd>D</kbd> | Rotate Right | — |
+| <kbd>X</kbd> | Speed Control | Speed Control |
+| <kbd>TAB</kbd> | Cycle Modes | Cycle Modes |
+| <kbd>U</kbd> | User Cotrol Mode | User Cotrol Mode |
+| <kbd>C</kbd> | Take Photo | Take Photo |
+| <kbd>V</kbd> | Take Video | Take Video |
+| <kbd>K</kbd> | Light Effects | Light Effects |
+| <kbd>L</kbd> | Turn On/Off Lights | Turn On/Off Lights |
 
-### Sensors & Cameras
-| Component | Details |
-|-----------|---------|
-| Camera 0 | Raspberry Pi Night Vision Camera |
-| Camera 1 | Raspberry Pi AI Camera (IMX500) |
-| Ultrasonic Sensor | HC-SR04 |
-| Microphone | USB Microphone |
 
-### Audio
-| Component | Details |
-|-----------|---------|
-| Output | Pi Speakers |
-| TTS | Piper / ElevenLabs |
+### 🎵 Media & System
+* <kbd>M</kbd> **Play Music**
+* <kbd>Space</kbd> **Stop Music** / Audio Interrupt
+
+</details>
+
+> [!TIP]
+> Use **Mode 2** for heavy terrain or precise pivoting, and **Mode 1** for smooth, cinematic strafing.
 
 ---
 
-## Software Stack
+<div align="center">
+  <img src="/images/demo/KIDA001.jpg" alt="KIDA Robot" width="400"/>
+</div>
 
+</details>
+
+---
+
+## Prerequisites
+
+<details>
+<summary><b>Prerequisites</b></summary>
+
+### Software
+- [Arduino IDE](https://docs.arduino.cc/software/ide/)
+- [Raspberry Pi OS](https://www.raspberrypi.com/software/operating-systems/)
 ### Operating System
 - **Recommended:** Raspberry Pi OS (Bookworm)
 - **Kernel:** `6.12.62+rpt-rpi-2712`
 
-### AI & ML
-| Component | Technology |
-|-----------|------------|
-| LLM | Ollama (DeepSeek-R1:1.5b, Gemma3:4b) |
-| STT | OpenAI Whisper |
-| TTS | Piper / ElevenLabs API |
-| Vision | Hailo-8 AI Processor, IMX500 |
+## Hardware
 
-### Python Requirements
-```
-playsound
-openai-whisper
-sounddevice
-numpy
-whisper
-SpeechRecognition
-pygame
-requests
-elevenlabs==0.2.26
-torch
-torchaudio
-```
+### Compute
+| **Component** | **Details** |
+|-----------|---------|
+| Main Board | Raspberry Pi 5 (4GB) |
+| PCI-E Board | NVMe + AI Hat |
+| AI Accelerator | Hailo-8 (13 TOPS) via NVMe + AI Hat |
+| Storage | NVMe SSD |
+| I2C | Custom |
+
+### Microcontrollers
+| **Component** | **Details** |
+|-----------|---------|
+| Microcontroller 0 | RGBduino Jenny | Dev0 |
+| Microcontroller 1 | Arduino UNO | Dev1 |
+
+### Chassis & Motion
+| **Component** | **Details** |
+|-----------|---------|
+| Chassis | Robot Tank Chassis |
+| Motor Driver | L298N |
+| Motors | 2× 12v DC Motors |
+
+### User Controllers
+| **Component** | **Details** |
+|-----------|---------|
+| Interface | PC, Android, iPhone |
+| Controller | Wireless Keyboard, IR remote |
+
+### Power System
+| **Component** | **Details** |
+|-----------|---------|
+| Motor Battery | 3s 21700 (12.6V in series) |
+| Compute Battery | 3s 18650 via Pi UPS |
+| Realtime Battery | CR2032 |
+| Voltage Regulator | LM2596S (12V → 11.5V) |
+| Power Switches | 4× (Main + UPS), 2× MOSFET SWITCHES|
+
+### Cameras
+| **Component** | **Details** |
+|-----------|---------|
+| Camera 0 | Raspberry Pi Night Vision Camera |
+| Camera 1 | Raspberry Pi AI Camera (IMX500) |
+
+### Sensors
+| **Component** | **Details** |
+|-----------|---------|
+| Ultrasonic Sensors | HC-SR04 × 2 (one mounted on servo for scanning) |
+| Line Follower | 3-Channel Line Tracking Sensor |
+| Switch Sensor | Ball Switch (Impact Detection) |
+| Infrared | IR Receiver Module |
+| UV Sensor | UV Light Sensor Module |
+| Light Sensor | Photoresistor (LDR) |
+| ToF Sensor | Time-of-Flight Laser Distance Sensor |
+| PIR Sensor | Passive Infrared Motion Sensor |
+
+### Audio
+| **Component** | **Details** |
+|-----------|---------|
+| Output | Pi Speakers |
+| Input | USB Microphone |
+
+</details>
 
 ---
 
-## GPIO / Wiring Reference
 
-### Motor A (Left)
-| L298N Pin | Function | Pi GPIO |
-|-----------|----------|---------|
-| IN1 | Direction | GPIO 17 |
-| IN2 | Direction | GPIO 27 |
-| ENA | Speed (PWM) | GPIO 18 (hardware PWM) |
+<div align="center">
+  <img src="kida.gif" alt="KIDA Robot" width="400"/>
+</div>
+<br>
 
-### Motor B (Right)
-| L298N Pin | Function | Pi GPIO |
-|-----------|----------|---------|
-| IN3 | Direction | GPIO 22 |
-| IN4 | Direction | GPIO 23 |
+# Schematics
+## ⚡ Technical Pinouts
+
+> [!CAUTION]
+> **Ground Loop Warning:** All modules must share a common GND. Failure to bridge grounds will cause erratic motor behavior and sensor noise.
+
+<details>
+<summary><b>Power Distribution Wiring</b></summary>
 
 ### Power Schematic
 ```
-[12V Battery Pack — 3S 21700 @ 3.7V each]
- ├── + ─────────► L298N VS        (motor power input)
- ├── + ─────────► LM2596S IN+     (step-down input for Pi)
- ├── – ─────────► L298N GND
- └── – ─────────► LM2596S IN–
-
-[LM2596S Output]
- ├── OUT+ ──────► Pi 5V  (GPIO pin 2 — or Pi UPS via USB-C [Recommended])
- └── OUT– ──────► Pi GND (GPIO pin 6 or 9)
+3S 21700 BATTERIES ──────► LM2596S INPUT 11.5V ──────► LM2596S Output 11.5V
+LM2596S Output 11.5V:
+├── + ──────► L298N +
+├── – ──────► L298N - ─────────► ARDUINO (DEV0) GND
+├── + ──────► MOSFET switch ─────────► (12V) FRONT LIGHTS +
+├── + ──────► MOSFET switch ─────────► (12V)BACK LIGHTS +
+├── – ──────► MOSFET switch ─────────► FRONT LIGHTS -
+└── – ──────► MOSFET switch ─────────► BACK LIGHTS -  
 ```
+```
+3S 18650 BATTERY UPS ──────► USB-C OUTPUT ──────► RASPBERRY PI
+    ├──► POWER BUTTON
+    └──► CHARGING PORT
+```
+```
+
+UPS:
+├── I2C ─────► Raspberry Pi I2C BUS
+├── 3.3V ────► BREADBOARD (3.3V rail)
+├── 5V ──────► SERVO POWER
+└── 5V ──────► BREADBOARD (5V rail)
+```
+</details>
+
+<details>
+<summary><b>Raspberry Pi Wiring</b></summary>
+
+```
+RASPBERRY PI:
+├──► NVMe + AI HAT (PCIe)
+│     └──► NVMe SSD + HAILO-8L
+│
+├──► ARDUINO (DEV0, DEV1) via USB
+├──► Camera 0 ─────► Night Vision Camera
+├──► Camera 1 ─────► AI Camera (IMX500)
+├──► SPEAKER HAT (USB)
+│
+├──► USB HUB:
+│     ├── MIC (USB)
+│     └── WIRELESS KEYBOARD (USB)
+│
+└──► GPIO:
+      └──► I2C BUS
+            ├── SDA → Pin 3
+            └── SCL → Pin 5
+```
+</details>
+
+<details>
+<summary><b>Arduino (DEV0) Wiring</b></summary>
+
+### **ARDUINO (DEV0):**
+#### Libraries:
+```
+Adafruit_VL53L0X.h
+Servo.h
+Adafruit_NeoPixel.h
+avr/power.h
+Wire.h
+```
+```
+POWER:
+├── 5V ──────► From Raspberry Pi (USB)
+└── GND ─────► Common GND (L298N, USB, modules)
+
+INPUT / OUTPUT:
+├── D2  ─────► BUTTON
+├── D8  ─────► BUZZER
+
+SERVO:
+├── D10 ─────► SERVO SIGNAL
+├── 5V  ─────► SERVO VCC (external 5V from UPS)
+└── GND ─────► SERVO GND
+
+ULTRASONIC SENSORS:
+├── US0 (FIXED)
+│   ├── A1 ─────► TRIG
+│   └── A0 ─────► ECHO
+│
+└── US1 (SERVO-MOUNTED)
+    ├── A2 ─────► TRIG
+    └── A3 ─────► ECHO
+
+MOTOR DRIVER (L298N):
+├── D6  ─────► RIGHT MOTOR PWM
+├── D7  ─────► RIGHT DIR1
+├── D9  ─────► RIGHT DIR2
+│
+├── D3  ─────► LEFT MOTOR PWM
+├── D4  ─────► LEFT DIR1
+└── D5  ─────► LEFT DIR2
+
+LED STRIPS (NEOPIXEL):
+├── D13 ─────► STRIP 1 DATA
+└── D12 ─────► STRIP 2 DATA
+
+VL53L0X:
+├── VCC ─────► 5V
+├── GND ─────► GND
+├── SDA ─────► A4
+└── SCL ─────► A5
+```
+
+</details>
+
+<details>
+<summary><b>Arduino (DEV1) Wiring</b></summary>
+
+### **ARDUINO (DEV1):**
+#### Libraries:
+```
+IRremote.h
+```
+```
+POWER:
+├── 5V ──────► From Raspberry Pi (USB)
+└── GND ─────► Common GND (USB, modules)
+
+IR REMOTE:
+├── D5 ──────► IR RECEIVER SIGNAL
+├── 5V ──────► IR RECEIVER VCC
+└── GND ─────► IR RECEIVER GND
+
+LIGHTS:
+├── D2 ──────► FRONT LIGHT (+ via MOSFET)
+└── D3 ──────► BACK LIGHT (+ via MOSFET)
+
+SENSORS (ANALOG):
+├── A0 ──────► METAL SENSOR
+├── A1 ──────► PHOTORESISTOR (LIGHT SENSOR)
+├── A2 ──────► UV SENSOR
+└── A3 ──────► BALL SWITCH (digital read but on analog pin)
+
+SENSORS (DIGITAL):
+├── D4  ─────► PIR MOTION SENSOR
+├── D8  ─────► LINE FOLLOWER LEFT
+├── D10 ─────► LINE FOLLOWER MID
+└── D9  ─────► LINE FOLLOWER RIGHT
+```
+
+</details>
+
+> [!TIP]
+> **Pro-Tip:** Make sure all modules share a common ground (GND) for stable operation.
+
+---
+## 🌐 Connectivity & Controls
+
+<details>
+<summary><b>Connectivity & Controls</b></summary>
+
+### Network Configuration
+| Parameter | Value |
+| :--- | :--- |
+| **SSID** | `NORA` |
+| **Password** | `12345678` |
+
+### RIFT Integration
+To connect via [RIFT](https://github.com/CursedPrograms/RIFT), ensure KIDA01 is active on:
+* `localhost:5004`
+
+</details>
 
 ---
 
-## Installation
+## Setup:
 
-### 1. Clone & Set Up Python Environment
+### MX500 AI Camera
+
+<details>
+<summary><b>MX500 AI Camera Setup</b></summary>
+
+```bash
+sudo apt update && sudo apt full-upgrade
+```
+```bash
+sudo apt install imx500-models
+```
+```bash
+rpicam-hello --list-cameras
+```
+#### AI Camera Object Detection (Realtime)
+```bash
+rpicam-hello --camera 1 -t 0 \
+  --post-process-file /usr/share/rpi-camera-assets/imx500_mobilenet_ssd.json \
+  --viewfinder-width 1920 \
+  --viewfinder-height 1080 \
+  --framerate 30
+```
+#### AI Camera Object Detection (Video)
+```bash
+rpicam-vid --camera 1 -t 10s -o output.264 
+--post-process-file /usr/share/rpi-camera-assets/imx500_mobilenet_ssd.json 
+--width 1920 
+--height 1080 
+--framerate 30
+```
+
+#### AI Camera Pose Estimation (Realtime)
+
+```bash
+rpicam-hello --camera 1 -t 0s 
+--post-process-file /usr/share/rpi-camera-assets/imx500_posenet.json 
+--viewfinder-width 1920 
+--viewfinder-height 1080 
+--framerate 30
+```
+#### Picamera2
+
+```bash
+sudo apt install python3-picamera2 --no-install-recommends
+```
+
+```bash
+sudo apt install python3-opencv python3-munkres
+```
+```bash
+python imx500_object_detection_demo.py --model /usr/share/imx500-models/imx500_network_ssd_mobilenetv2_fpnlite_320x320_pp.rpk
+```
+```bash
+python imx500_pose_estimation_higherhrnet_demo.py
+```
+
+#### Documentation
+https://www.raspberrypi.com/documentation/accessories/ai-camera.html
+https://github.com/raspberrypi/picamera2/tree/main/examples/imx500
+
+
+</details>
+
+---
+### Install Ollama
+
+<details>
+<summary><b>Ollama Setup</b></summary>
+
+```bash
+sudo snap install ollama
+ollama --version
+```
+
+#### Pull Ollama Model
+
+```bash
+ollama pull gemma3:4b-it-qat
+```
+#### Run Ollama Model
+```bash
+ollama run deepseek-r1:1.5b
+```
+
+</details>
+
+---
+### Environment Setup
+
+<details>
+<summary><b>Environment Setup</b></summary>
 
 ```bash
 sudo apt update
@@ -158,56 +469,103 @@ pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-### 2. Install OpenAI Whisper
+</details>
+
+---
+### Install OpenAI Whisper
+
+<details>
+<summary><b>Whisper Setup</b></summary>
 
 ```bash
 pip install git+https://github.com/openai/whisper.git
 ```
 
-### 3. Install Audio Dependencies
-
 ```bash
-sudo apt install pulseaudio jackd2 alsa-utils portaudio19-dev python3-pyaudio
+python3 -c "import whisper; whisper.load_model('large')"
+python3 -c "import whisper; whisper.load_model('tiny')"
 ```
 
-### 4. Install Piper TTS
+</details>
+
+---
+### Install Audio Dependencies
+
+<details>
+<summary><b>Audio Setup</b></summary>
+
+```bash
+sudo apt install ffmpeg alsa-utils -y pulseaudio jackd2 alsa-utils portaudio19-dev python3-pyaudio
+```
+
+</details>
+
+---
+### Install Piper TTS
+
+<details>
+<summary><b>Piper Setup</b></summary>
 
 ```bash
 pip install piper-tts
 ```
-
-### 5. Install ElevenLabs (optional)
+#### Download Voices
 
 ```bash
-pip install git+https://github.com/elevenlabs/elevenlabs-python@v3
+mkdir -p ~/voices/
+
+# Amy (medium) — recommended
+wget "https://huggingface.co/rhasspy/piper-voices/resolve/v1.0.0/en/en_US/amy/medium/en_US-amy-medium.onnx?download=true" -O en_US-amy-medium.onnx
+wget "https://huggingface.co/rhasspy/piper-voices/resolve/v1.0.0/en/en_US/amy/medium/en_US-amy-medium.onnx.json?download=true" -O en_US-amy-medium.onnx.json
+``` 
+
+#### Test Piper
+
+```bash
+echo "Hello, I am your voice assistant." | \
+piper --model voices/en_US-amy-medium.onnx \
+--output_raw | aplay -D plughw:2,0 -r 22050 -f S16_LE -t raw -
 ```
 
-### 6. Install & Set Up Hailo
+#### Install Piper binary (Not Needed)
+
+```bash
+wget https://github.com/rhasspy/piper/releases/download/2023.11.14-2/piper_linux_x86_64.tar.gz
+tar xzf piper_linux_x86_64.tar.gz
+sudo mv piper/piper /usr/local/bin/
+```
+
+</details>
+
+### Install & Set Up Hailo
+
+<details>
+<summary><b>Hailo8l Setup</b></summary>
 
 ```bash
 sudo apt update
 sudo apt install hailo-all
 ```
-
-Verify the installation:
+### Test Hailo
+- Verify the installation:
 ```bash
 hailortcli fw-control identify
 ```
-
-Expected output:
+- Expected output:
 ```
-Device: Hailo-8
+Device: Hailo-8l
 PCIe Address: 0001:03:00.0
 Firmware Version: x.x.x
 ```
 
-> **Troubleshooting:** If the driver is not detected after install, a DKMS module may have failed to build. Pin back to version 4.19 which has stable kernel module support:
-> ```bash
-> sudo apt-mark hold linux-image-rpi-2712 linux-headers-rpi-2712
-> sudo apt install hailort=4.19.0 hailo-all=4.19.0 -y
-> sudo apt-mark hold hailort hailo-all
-> sudo reboot
-> ```
+**Troubleshooting:** 
+- If the driver is not detected after install, a DKMS module may have failed to build. Pin back to version 4.19 which has stable kernel module support:
+```bash
+sudo apt-mark hold linux-image-rpi-2712 linux-headers-rpi-2712
+sudo apt install hailort=4.19.0 hailo-all=4.19.0 -y
+sudo apt-mark hold hailort hailo-all
+sudo reboot
+```
 
 #### Manual Hailo Build (if package unavailable)
 ```bash
@@ -221,9 +579,135 @@ echo "export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH" >> ~/.bashrc
 source ~/.bashrc
 pip install hailort
 ```
+</details>
+
+#### Diagnostics
+
+<details>
+<summary><b>Diagnostics</b></summary>
+
+```bash
+# Check Hailo kernel module
+lsmod | grep hailo
+
+# Identify Hailo device
+hailortcli fw-control identify
+
+# Check PCI devices
+lspci | grep Hailo
+
+# Kill conflicting camera processes
+ps aux | grep -E 'libcamera|picamera'
+sudo kill -9 <PID>
+
+# Check which process is using the camera
+sudo fuser -v /dev/video0
+
+# Kernel version
+uname -r
+```
+
+</details>
 
 ---
 
+### RTC Setup
+
+<details>
+<summary><b>RTC Setup</b></summary>
+
+```bash
+dtparam=rtc_bbat_vchg=3000000
+sudo mount -o remount,rw /boot/firmware
+sudo nano /boot/firmware/config.txt
+sudo hwclock -w
+sudo hwclock -v -r
+```
+
+</details>
+
+---
+
+<details>
+<summary><b>PCIE3 Setup</b></summary>
+
+Enable PCIe Gen 3 speeds for the Hailo Hat
+ - dtparam=pciex1_gen=3
+
+```bash
+/boot/firmware/config.txt
+```
+
+</details>
+
+---
+
+```bash
+
+apt-get update
+apt-get install -y libsm6 libxext6 libxrender-dev
+pip install opencv-contrib-python
+pip install opencv_transforms
+pip install opencv-python
+pip install facenet-pytorch
+pip install piper-tts
+pip install git+https://github.com/openai/whisper.git
+sudo apt install pulseaudio jackd2 alsa-utils portaudio19-dev python3-pyaudio imx500-models
+
+https://download.pytorch.org/whl/cpu/torch-1.0.1.post2-cp36-cp36m-linux_x86_64.whl
+https://download.pytorch.org/whl/cpu/torch-1.0.1.post2-cp37-cp37m-linux_x86_64.whl
+
+```
+
+---
+
+#### InceptionResnetV1
+
+```bash
+from facenet_pytorch import InceptionResnetV1
+
+# For a model pretrained on VGGFace2
+model = InceptionResnetV1(pretrained='vggface2').eval()
+
+# For a model pretrained on CASIA-Webface
+model = InceptionResnetV1(pretrained='casia-webface').eval()
+
+# For an untrained model with 100 classes
+model = InceptionResnetV1(num_classes=100).eval()
+
+# For an untrained 1001-class classifier
+model = InceptionResnetV1(classify=True, num_classes=1001).eval()
+```
+
+#### Pre-processing
+```bash
+# Basic debugging
+from opencv_transforms.debug import utils
+result = utils.compare_contrast_outputs(image, contrast_factor=0.5)
+
+# Create test summary across multiple contrast factors
+summary = utils.create_contrast_test_summary(image)
+
+# Analyze PIL precision issues
+utils.analyze_pil_precision_issue(image)
+```
+#### Detection Pipeline
+
+```bash
+
+from facenet_pytorch import MTCNN, InceptionResnetV1
+
+# If required, create a face detection pipeline using MTCNN:
+mtcnn = MTCNN(image_size=<image_size>, margin=<margin>)
+
+# Create an inception resnet (in eval mode):
+resnet = InceptionResnetV1(pretrained='vggface2').eval()
+
+apt-get update
+apt-get install -y libsm6 libxext6 libxrender-dev
+pip install opencv-python
+```
+---
 ## Running KIDA
 
 ### Activate the virtual environment
@@ -236,31 +720,14 @@ source venv/bin/activate
 ```bash
 python scripts/main.py
 ```
-
-### Run LLM
-```bash
-ollama run deepseek-r1:1.5b
-# or
-ollama pull gemma3:4b-it-qat
-```
-
-### Test cameras
-```bash
-rpicam-hello --list-cameras
-
-# AI Camera inference (camera slot 1)
-rpicam-hello --camera 1 -t 0 \
-  --post-process-file /usr/share/rpi-camera-assets/imx500_mobilenet_ssd.json \
-  --viewfinder-width 1920 \
-  --viewfinder-height 1080 \
-  --framerate 30
-```
-
 ---
 
-## Autostart on Boot
+### Autostart on Boot
 
-### Option A: systemd service (recommended)
+<details>
+<summary><b>Autostart on Boot Setup</b></summary>
+
+#### Option A: systemd service (recommended)
 
 ```bash
 sudo nano /etc/systemd/system/kida.service
@@ -287,8 +754,8 @@ sudo systemctl daemon-reload
 sudo systemctl enable kida.service
 sudo systemctl start kida.service
 ```
-
-### Option B: Camera preview service
+---
+#### Option B: Camera preview service
 
 ```bash
 sudo nano /etc/systemd/system/kida-camera.service
@@ -321,16 +788,16 @@ Check status / logs:
 sudo systemctl status kida-camera.service
 journalctl -u kida-camera.service -f
 ```
-
-### Option C: crontab
+---
+#### Option C: crontab
 
 ```bash
 crontab -e
 # Add:
 @reboot cd /home/kida-01/Desktop/Kida-Robot && python3 main.py &
 ```
-
-### Option D: Desktop autostart
+---
+#### Option D: Desktop autostart
 
 ```bash
 mkdir -p ~/.config/autostart
@@ -345,77 +812,27 @@ Type=Application
 X-GNOME-Autostart-enabled=true
 ```
 
----
-
-## RTC Setup
-
-```bash
-dtparam=rtc_bbat_vchg=3000000
-sudo mount -o remount,rw /boot/firmware
-sudo nano /boot/firmware/config.txt
-sudo hwclock -w
-sudo hwclock -v -r
-```
-
----
-
-## FFmpeg Setup (Windows)
-
-1. Download the latest static build from: https://www.gyan.dev/ffmpeg/builds/
-2. Extract and rename the folder to `ffmpeg`, placed at `C:\ffmpeg`
-3. Ensure this structure exists:
-   ```
-   C:\ffmpeg\bin\
-   ├── ffmpeg.exe
-   ├── ffplay.exe
-   └── ffprobe.exe
-   ```
-4. Add `C:\ffmpeg\bin` to your system `PATH` via **System Properties → Environment Variables**
-5. Verify: open a new terminal and run `ffmpeg -version`
-
----
-
-## Diagnostics
-
-```bash
-# Check Hailo kernel module
-lsmod | grep hailo
-
-# Identify Hailo device
-hailortcli fw-control identify
-
-# Check PCI devices
-lspci | grep Hailo
-
-# Kill conflicting camera processes
-ps aux | grep -E 'libcamera|picamera'
-sudo kill -9 <PID>
-
-# Check which process is using the camera
-sudo fuser -v /dev/video0
-
-# Kernel version
-uname -r
-```
+</details>
 
 ---
 
 <div align="center">
-  <img src="/images/demo/KIDA002.jpg" alt="KIDA Robot" width="600"/>
+  <img src="/images/demo/KIDA002.jpg" alt="KIDA Robot" width="400"/>
+</div>
+<br>
+<br>
+<div align="center">
+  <img src="hailo_logo.png" alt="Hailo" width="200"/>
 </div>
 <br>
 <div align="center">© Cursed Entertainment 2026</div>
-
 <br>
-
 <div align="center">
   <a href="https://cursed-entertainment.itch.io/" target="_blank">
     <img src="https://github.com/CursedPrograms/cursedentertainment/raw/main/images/logos/logo-wide-grey.png" alt="CursedEntertainment Logo" style="width:250px;">
   </a>
 </div>
-
 <br>
-
 <div align="center">
   <a href="https://github.com/SynthWomb" target="_blank">
     <img src="https://github.com/SynthWomb/synth.womb/blob/main/logos/synthwomb07.png" alt="SynthWomb" style="width:200px;"/>

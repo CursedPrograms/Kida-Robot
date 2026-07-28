@@ -1,61 +1,71 @@
-import pygame
+# buttons.py — button definitions for KIDA, wired to local hardware
+#
+# The Button widget itself lives in button_widget.py (shared with
+# controller/buttons.py, the remote-controller equivalent of this file) —
+# only the action wiring below is robot-specific.
+
+from button_widget import Button
 from leds import toggle_leds
-from camera_actions import take_photo, start_video, stop_video, check_recording_timeout
-from music import play_next_track, stop_music, skip_music
+from camera_actions import (take_photo, start_video, stop_video,
+                            cycle_camera, save_inference_photo)
 from arduino import send_command
-import state_machine
+from mode_control import switch_mode
+import sfx
 
-class Button:
-    def __init__(self, rect, color, text, action):
-        self.rect = pygame.Rect(rect)
-        self.base_color = color
-        self.hover_color = (min(color[0]+30,255), min(color[1]+30,255), min(color[2]+30,255))
-        self.pressed_color = (max(color[0]-30,0), max(color[1]-30,0), max(color[2]-30,0))
-        self.text = text
-        self.action = action
-        self.font = pygame.font.SysFont(None, 20)
-        self.is_hovered = False
-        self.is_pressed = False
 
-    def draw(self, surface):
-        color = self.base_color
-        if self.is_pressed:
-            color = self.pressed_color
-        elif self.is_hovered:
-            color = self.hover_color
-        pygame.draw.rect(surface, color, self.rect, border_radius=12)
-        pygame.draw.rect(surface, (80,80,80), self.rect, 2, border_radius=12)
-        label = self.font.render(self.text, True, (0, 0, 0))
-        label_rect = label.get_rect(center=self.rect.center)
-        surface.blit(label, label_rect)
+def create_buttons(music_ctrl=None) -> list:
+    """
+    music_ctrl: MusicPlayer instance from ui.py.
+    Pass it here so the Play/Skip/Stop buttons use the live player,
+    not the old music.py module globals.
+    """
+    pink   = (255, 182, 193)
+    blue   = (160, 200, 255)
+    purple = (200, 160, 255)
+    red    = (255, 140, 140)
 
-    def update(self, mouse_pos, mouse_down):
-        self.is_hovered = self.rect.collidepoint(mouse_pos)
-        self.is_pressed = self.is_hovered and mouse_down
+    def music_play():
+        if music_ctrl:
+            if music_ctrl.is_playing():
+                music_ctrl.skip()
+            else:
+                music_ctrl.start()
 
-    def is_clicked(self, pos):
-        return self.rect.collidepoint(pos)
+    def music_skip():
+        if music_ctrl:
+            music_ctrl.skip()
 
-def create_buttons():
-    pink = (255, 182, 193)
+    def music_stop():
+        if music_ctrl:
+            music_ctrl.stop()
 
-    def enable_keyboard():
-        send_command("dev00", "AUTO_OFF")
-        state_machine.keyboard_control = True
-        print("🔑 Keyboard control mode enabled")
+    # Button-triggered capture plays only the sound effect — no spoken
+    # reply, since pressing a button isn't a conversation turn (voice
+    # commands in voice_commands.py speak first, then play the same effect).
+    def photo_btn():
+        take_photo()
+        sfx.play("camera_shutter.mp3")
 
-    def enable_autonomous():
-        send_command("dev00", "AUTO_ON")  # ← Arduino handles obstacle avoidance
-        state_machine.keyboard_control = False
-        print("🤖 Autonomous mode enabled (Arduino controlling)")
+    def video_btn():
+        start_video()
+        sfx.play("video_reel.mp3")
 
     return [
-        Button((650, 20, 160, 40), pink, "Take Photo", take_photo),
-        Button((650, 70, 160, 40), pink, "Record Video", start_video),
-        Button((650, 120, 160, 40), pink, "Keyboard Mode", enable_keyboard),
-        Button((650, 170, 160, 40), pink, "Autonomous Mode", enable_autonomous),
-        Button((650, 220, 160, 40), pink, "Play Music", play_next_track),
-        Button((650, 270, 160, 40), pink, "Next Track", skip_music),
-        Button((650, 320, 160, 40), pink, "Stop Music", stop_music),
-        Button((650, 370, 160, 40), pink, "Toggle LEDs", toggle_leds),
+        # Camera / capture
+        Button((0, 0, 160, 36), pink,   "Take Photo",    photo_btn),
+        Button((0, 0, 160, 36), blue,   "Cam: 0",        cycle_camera),
+        Button((0, 0, 160, 36), pink,   "Save Inference", save_inference_photo),
+        Button((0, 0, 160, 36), pink,   "Record Video",  video_btn),
+        # Drive modes
+        Button((0, 0, 160, 36), blue,   "Keyboard Mode", lambda: switch_mode(1)),
+        Button((0, 0, 160, 36), blue,   "Autonomous",    lambda: switch_mode(3)),
+        Button((0, 0, 160, 36), purple, "Line Follow",   lambda: switch_mode(5)),
+        Button((0, 0, 160, 36), blue,   "Idle / Stop",   lambda: switch_mode(4)),
+        Button((0, 0, 160, 36), red,    "Watchdog",      lambda: switch_mode(6)),
+        # Music
+        Button((0, 0, 160, 36), pink,   "Play Music",    music_play),
+        Button((0, 0, 160, 36), pink,   "Next Track",    music_skip),
+        Button((0, 0, 160, 36), pink,   "Stop Music",    music_stop),
+        # LEDs
+        Button((0, 0, 160, 36), pink,   "Toggle LEDs",   toggle_leds),
     ]

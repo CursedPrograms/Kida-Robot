@@ -1,5 +1,6 @@
 import numpy as np
 import os
+import time
 from hailo_platform import (HEF, VDevice, HailoSchedulingAlgorithm, FormatType)
 from transformers import AutoTokenizer
 from queue import Queue, Empty
@@ -72,6 +73,22 @@ class HailoWhisperPipeline:
         return transpose_output
 
     def _inference_loop(self):
+        # A VDevice/network-config failure (e.g. a transient HAILO_NOT_FOUND
+        # race at startup while other processes are also claiming the shared
+        # Hailo-8L) used to propagate out of this method entirely, silently
+        # killing this thread forever — get_transcription() would then block
+        # on results_queue.get() with no timeout for the rest of the process's
+        # life, since nothing was left alive to ever put() into it. Retrying
+        # the whole session (fresh VDevice + reconfigure) instead of letting
+        # the thread die keeps voice recoverable after a bad startup race.
+        while self.running:
+            try:
+                self._run_session()
+            except Exception as e:
+                print(f"⚠️  HailoWhisperPipeline: inference session crashed ({e}); reconnecting…")
+                time.sleep(1)
+
+    def _run_session(self):
         params = VDevice.create_params()
         params.scheduling_algorithm = HailoSchedulingAlgorithm.ROUND_ROBIN
 
@@ -160,8 +177,8 @@ class HailoWhisperPipeline:
     def send_data(self, data):
         self.data_queue.put(data)
 
-    def get_transcription(self):
-        return self.results_queue.get()
+    def get_transcription(self, timeout=30):
+        return self.results_queue.get(timeout=timeout)
 
     def stop(self):
         self.running = False

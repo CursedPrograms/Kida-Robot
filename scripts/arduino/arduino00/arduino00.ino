@@ -1,6 +1,9 @@
 #include "Adafruit_VL53L0X.h"
 #include <Servo.h>
 #include <Adafruit_NeoPixel.h>
+#include <stdlib.h>   // atoi() — used by the LMOTOR:/RMOTOR: parser below
+#include <string.h>   // strcmp()/strncmp() — serial command parser
+#include <ctype.h>    // isspace()/toupper() — serial command parser
 #ifdef __AVR__
   #include <avr/power.h>
   #include <Wire.h>
@@ -51,10 +54,17 @@ namespace Config {
   constexpr uint8_t  OBSTACLE_CM         = 25;   // ultrasonic threshold (cm)
   constexpr uint16_t OBSTACLE_MM         = 200;  // laser threshold (mm)
   constexpr uint8_t  CLEAR_CM            = 30;   // "open route" threshold (cm)
+  constexpr uint16_t TURN_MS             = 750;  // avoidance turn duration (was 350 — too short to clear obstacle)
 
   // Serial
   constexpr uint16_t SERIAL_BAUD         = 9600;
   constexpr uint16_t SENSOR_INTERVAL     = 200;  // ms between sensor prints
+
+  // If the Pi dies (crash/kill -9/power loss) while AUTO_ON is active, there's
+  // no more Python code running to send AUTO_OFF/STOP — the Arduino would
+  // otherwise keep driving forever. The Pi sends a PING every ~500ms while
+  // autonomous; if none arrives for this long, stop and drop out of auto mode.
+  constexpr uint16_t AUTONOMOUS_WATCHDOG_MS = 1500;
 }
 
 // ===============================================
@@ -69,6 +79,13 @@ struct RobotState {
   bool           systemReady = false;
 };
 
+// Independent per-side speed, set via LMOTOR:/RMOTOR: for tank-style drive
+// (Q/A = left, W/S = right on the KIDA UIs). Reset to 0 by
+// executeMotorCommand() so switching back to a preset direction (or STOP)
+// never leaves a stale independent speed active on the other side.
+int tankLeftSpeed  = 0;
+int tankRightSpeed = 0;
+
 struct SensorReadings {
   int  laser      = -1;
   long us0        = -1;  // fixed low
@@ -77,6 +94,7 @@ struct SensorReadings {
 };
 
 bool autonomousMode = false;
+unsigned long lastCommandMs = 0;   // last time a serial line was received (watchdog)
 
 // ===============================================
 // HARDWARE INSTANCES
@@ -233,6 +251,20 @@ int readLaserDistance() {
 
 bool readButtonState() { return digitalRead(Config::BUTTON_PIN) == LOW; }
 
+// A single ping occasionally misses its echo and reads 0 ("nothing there"),
+// even with a real obstacle in range — that false "clear" reading is what
+// was driving bad left/right turn choices. Ping twice and trust whichever
+// reading actually saw something; only call it open if both pings miss.
+long readUltrasonicChecked(uint8_t trigPin, uint8_t echoPin) {
+  long a = readUltrasonic(trigPin, echoPin);
+  delay(15);
+  long b = readUltrasonic(trigPin, echoPin);
+  if (a > 0 && b > 0) return min(a, b);
+  if (a > 0) return a;
+  if (b > 0) return b;
+  return 0;
+}
+
 SensorReadings getAllSensorReadings() {
   SensorReadings r;
   r.laser    = readLaserDistance();
@@ -262,6 +294,7 @@ void setMotorSpeeds(int leftSpeed, int rightSpeed) {
 
 void executeMotorCommand(MotorDirection dir) {
   int s = robotState.motorSpeed;
+  tankLeftSpeed = tankRightSpeed = 0;   // preset commands always supersede tank mode
   switch (dir) {
     case MotorDirection::FORWARD:  setMotorSpeeds( s,  s); break;
     case MotorDirection::BACKWARD: setMotorSpeeds(-s, -s); break;
@@ -311,13 +344,13 @@ void obstacleAvoidance() {
 
   robotServo.write(Config::SERVO_LEFT);
   delay(400);
-  long leftDist = readUltrasonic(Config::US1_TRIG, Config::US1_ECHO);
+  long leftDist = readUltrasonicChecked(Config::US1_TRIG, Config::US1_ECHO);
   Serial.print("SCAN_LEFT:"); Serial.println(leftDist);
   setSplitPixels(strip1.Color(255, 100, 0), strip1.Color(0, 0, 0)); // illuminate left
 
   robotServo.write(Config::SERVO_RIGHT);
   delay(400);
-  long rightDist = readUltrasonic(Config::US1_TRIG, Config::US1_ECHO);
+  long rightDist = readUltrasonicChecked(Config::US1_TRIG, Config::US1_ECHO);
   Serial.print("SCAN_RIGHT:"); Serial.println(rightDist);
   setSplitPixels(strip1.Color(0, 0, 0), strip1.Color(255, 100, 0)); // illuminate right
 
@@ -333,14 +366,14 @@ void obstacleAvoidance() {
     setSplitPixels(strip1.Color(0, 0, 255), strip1.Color(0, 0, 40));
     playTone(Config::TONE_LEFT, 150);
     executeMotorCommand(MotorDirection::LEFT);
-    delay(350);
+    delay(Config::TURN_MS);
 
   } else if (rightOpen) {
     // TURN RIGHT
     setSplitPixels(strip1.Color(0, 40, 0), strip1.Color(0, 255, 80));
     playTone(Config::TONE_RIGHT, 150);
     executeMotorCommand(MotorDirection::RIGHT);
-    delay(350);
+    delay(Config::TURN_MS);
 
   } else {
     // BOTH BLOCKED — reverse with angry strobe then pick best side
@@ -357,7 +390,7 @@ void obstacleAvoidance() {
       setSplitPixels(strip1.Color(0, 40, 0), strip1.Color(0, 255, 80));
       executeMotorCommand(MotorDirection::RIGHT);
     }
-    delay(350);
+    delay(Config::TURN_MS);
   }
 
   executeMotorCommand(MotorDirection::STOP);
@@ -390,33 +423,60 @@ long scanRight() {
 // ===============================================
 // SERIAL COMMANDS
 // ===============================================
-void processSerialCommand(String cmd) {
-  cmd.trim();
-  cmd.toUpperCase();
+// Takes a mutable char buffer (owned by handleSerialInput's static buf) —
+// no String class anywhere in the serial path. This board runs at 92%
+// flash / 75% static SRAM (503 bytes free per the compiler's own "Low
+// memory available" warning); Arduino String heap-allocates on every
+// readStringUntil()/substring()/copy, and with the web HUD's drive
+// heartbeat resending a command every 300ms that was a lot of tiny
+// alloc/free cycles for an AVR chip with no heap compactor — exactly the
+// kind of memory corruption that can silently break sensor-reporting or
+// hang unrelated code elsewhere (e.g. the VL53L0X init in initLaser()).
+void processSerialCommand(char *cmd) {
+  size_t len = strlen(cmd);
+  while (len > 0 && isspace((unsigned char)cmd[len - 1])) cmd[--len] = '\0';
+  while (isspace((unsigned char)*cmd)) cmd++;
+  for (char *p = cmd; *p; p++) *p = toupper((unsigned char)*p);
 
-    if      (cmd == "FORWARD")          executeMotorCommand(MotorDirection::FORWARD);
-  else if (cmd == "BACKWARD")         executeMotorCommand(MotorDirection::BACKWARD);
-  else if (cmd == "LEFT")             executeMotorCommand(MotorDirection::LEFT);
-  else if (cmd == "RIGHT")            executeMotorCommand(MotorDirection::RIGHT);
-  else if (cmd == "STOP")             executeMotorCommand(MotorDirection::STOP);
- else if (cmd.startsWith("SPEED:")) { robotState.motorSpeed = constrain(cmd.substring(6).toInt(), 0, 255);}
-  else if (cmd == "SCANLEFT")       { long d = scanLeft();  Serial.print("SCANLEFT:");  Serial.println(d); }
-  else if (cmd == "SCANRIGHT")      { long d = scanRight(); Serial.print("SCANRIGHT:"); Serial.println(d); }
-  else if (cmd == "AUTO_ON") {
-  autonomousMode = true;
-  Serial.println("AUTO_MODE_ON");
-}
-
-else if (cmd == "AUTO_OFF") {
-  autonomousMode = false;
-  executeMotorCommand(MotorDirection::STOP);
-  Serial.println("AUTO_MODE_OFF");
-}
+       if (strcmp(cmd, "FORWARD") == 0)  executeMotorCommand(MotorDirection::FORWARD);
+  else if (strcmp(cmd, "BACKWARD") == 0) executeMotorCommand(MotorDirection::BACKWARD);
+  else if (strcmp(cmd, "LEFT") == 0)     executeMotorCommand(MotorDirection::LEFT);
+  else if (strcmp(cmd, "RIGHT") == 0)    executeMotorCommand(MotorDirection::RIGHT);
+  else if (strcmp(cmd, "STOP") == 0)     executeMotorCommand(MotorDirection::STOP);
+  else if (strncmp(cmd, "SPEED:", 6) == 0) {
+    robotState.motorSpeed = constrain(atoi(cmd + 6), 0, 255);
+  }
+  // Independent per-motor drive (tank-style: Q/A = left, W/S = right).
+  // Signed speed, positive = forward. Doesn't touch the other side.
+  else if (strncmp(cmd, "LMOTOR:", 7) == 0) {
+    tankLeftSpeed = constrain(atoi(cmd + 7), -255, 255);
+    setMotorSpeeds(tankLeftSpeed, tankRightSpeed);
+  }
+  else if (strncmp(cmd, "RMOTOR:", 7) == 0) {
+    tankRightSpeed = constrain(atoi(cmd + 7), -255, 255);
+    setMotorSpeeds(tankLeftSpeed, tankRightSpeed);
+  }
+  else if (strcmp(cmd, "SCANLEFT") == 0)  { long d = scanLeft();  Serial.print("SCANLEFT:");  Serial.println(d); }
+  else if (strcmp(cmd, "SCANRIGHT") == 0) { long d = scanRight(); Serial.print("SCANRIGHT:"); Serial.println(d); }
+  else if (strcmp(cmd, "PING") == 0) { /* heartbeat only — resets the watchdog via handleSerialInput() */ }
+  else if (strcmp(cmd, "AUTO_ON") == 0) {
+    autonomousMode = true;
+    Serial.println("AUTO_MODE_ON");
+  }
+  else if (strcmp(cmd, "AUTO_OFF") == 0) {
+    autonomousMode = false;
+    executeMotorCommand(MotorDirection::STOP);
+    Serial.println("AUTO_MODE_OFF");
+  }
 }
 
 void handleSerialInput() {
+  static char buf[32];
   while (Serial.available()) {
-    processSerialCommand(Serial.readStringUntil('\n'));
+    size_t len = Serial.readBytesUntil('\n', buf, sizeof(buf) - 1);
+    buf[len] = '\0';
+    lastCommandMs = millis();   // any line at all counts as "Pi is alive"
+    processSerialCommand(buf);
   }
 }
 
@@ -500,6 +560,15 @@ void setup() {
 
   Serial.println(F("=== DEV00 Startup ==="));
 
+  // Give the VL53L0X I2C init a hard timeout. Without this, a
+  // disconnected/miswired/dead sensor leaves Wire's blocking calls
+  // spinning forever inside laserSensor.begin() — hanging the whole
+  // board before motors/servo/lights ever get to run. 25ms is generous
+  // for a healthy bus; reset_with_timeout=true recovers the TWI hardware
+  // state afterward so the rest of setup() can still proceed.
+  Wire.begin();
+  Wire.setWireTimeout(25000, true);
+
   robotState.systemReady = initLaser();
   initServo();
   initMotors();
@@ -514,6 +583,7 @@ void setup() {
   lightWipe(strip1.Color(0, 0, 0), 40);
 
   Serial.println(F("DEV00_READY"));
+  lastCommandMs = millis();
 }
 
 // ===============================================
@@ -521,14 +591,25 @@ void setup() {
 // ===============================================
 void loop() {
 
+  // Serial commands (AUTO_OFF, STOP, mode switches, ...) must always be
+  // read, even while autonomousMode is true — otherwise the Pi can never
+  // reach the Arduino to turn autonomous mode off again.
+  handleSerialInput();
+
 if (autonomousMode) {
-  obstacleAvoidance();
+  if (millis() - lastCommandMs > Config::AUTONOMOUS_WATCHDOG_MS) {
+    // Pi has gone silent (crashed/killed/lost power) — don't keep driving blind.
+    autonomousMode = false;
+    executeMotorCommand(MotorDirection::STOP);
+    Serial.println("WATCHDOG_STOP_NO_HEARTBEAT");
+  } else {
+    obstacleAvoidance();
+  }
   return;
 }
-  
+
   SensorReadings readings = getAllSensorReadings();
   handleButton(readings.btnState);
-  handleSerialInput();
 
   // Sensor print (non-blocking)
   if (millis() - lastSensorPrint >= Config::SENSOR_INTERVAL) {

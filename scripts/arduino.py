@@ -26,7 +26,7 @@ _DEFAULTS = {
 
     "servoPosValue": "-",
     "buttonValue": "-",
-    "motorSpeedValue": "-",
+    "motorSpeedValue": config.DEFAULT_SPEED,
 
     "irCommand": "-",
     "irMode": "-",
@@ -93,6 +93,24 @@ def handle_ir(line):
         state.irMode = "IDLE"
         print("🛑 Controller reset")
 
+    elif line == "IR5":
+        state.irMode = "LINE_FOLLOWER"
+        print("〰 Line follower mode")
+
+    elif line == "IR6":
+        state.irMode = "WATCHDOG"
+        print("🚨 Watchdog mode")
+
+
+    # motor lock — instant, no password (physical possession of the
+    # remote is the credential; see motor_lock.py for the password-gated
+    # network path)
+    elif line == "IRlock":
+        state.irCommand = "LOCK"
+
+    elif line == "IRunlock":
+        state.irCommand = "UNLOCK"
+
 
     # movement commands
     elif line == "IRforward":
@@ -123,6 +141,13 @@ def handle_ir(line):
 
     elif line == "IRrelease":
         state.irCommand = "STOP"
+
+    # Color buttons — speed control
+    elif line == "IRyellow":
+        state.irCommand = "SPEED_DOWN"
+
+    elif line == "IRblue":
+        state.irCommand = "SPEED_UP"
 
     # unknown IR command
     else:
@@ -197,7 +222,11 @@ def dispatch(line, dev_name):
     # 5. Text alerts (legacy)
     uline = line.upper()
     if "MOTION DETECTED" in uline:
-        state.systemStatus = "⚠ Motion"
+        # Suppress false positives while the robot is actively driving
+        import mode_manager
+        from state import DriveMode
+        if mode_manager.current_mode() == DriveMode.IDLE:
+            state.systemStatus = "⚠ Motion"
         return
     if "METAL DETECTED" in uline:
         state.systemStatus = "⚡ Metal"
@@ -328,6 +357,14 @@ def start_arduino_threads():
 
 def send_command(dev, cmd):
 
+    # Motor lock — hard interlock enforced at the single choke point every
+    # drive path (keyboard, IR, autonomous, line follower, watchdog, lane
+    # detect, celebration, and the remote controller's /action calls) goes
+    # through. STOP always gets through so the robot can still be halted.
+    if dev == "dev00" and state.motor_lock and cmd != "STOP":
+        print(f"🔒 Motor lock engaged — ignoring dev00 '{cmd}'")
+        return
+
     ser = arduinos.get(dev)
 
     if not ser or not ser.is_open:
@@ -348,12 +385,69 @@ def send_command(dev, cmd):
 
 
 # ─────────────────────────────────────────────
+# Lights — driving vs. stopped
+#
+# These send LIGHT_BACK_ON/LIGHT_FRONT_OFF for "driving" and
+# LIGHT_FRONT_ON/LIGHT_BACK_OFF for "stopped" — the literal opposite of
+# what the names suggest. That's intentional: the physical LED strips are
+# wired opposite to the Arduino firmware's FRONT_LIGHT/BACK_LIGHT pin
+# naming (confirmed by watching the wrong strip light up on the actual
+# hardware), so sending "LIGHT_FRONT_ON" lights the physical back strip.
+# Centralised here so every call site (keyboard, IR, mode changes, the
+# remote controller) gets the correct physical behaviour from one place.
+# ─────────────────────────────────────────────
+
+def set_driving_lights() -> None:
+    send_command("dev01", "LIGHT_BACK_ON")
+    send_command("dev01", "LIGHT_FRONT_OFF")
+
+
+def set_stopped_lights() -> None:
+    send_command("dev01", "LIGHT_FRONT_ON")
+    send_command("dev01", "LIGHT_BACK_OFF")
+
+
+# ─────────────────────────────────────────────
+# Set motor speed (also remembers it for callers like vibration_guard
+# that need to know the current cruising speed to restore afterward —
+# dev00's firmware never reports SPEED back over serial, so this is the
+# only source of truth for "what speed did we last command")
+# ─────────────────────────────────────────────
+
+def set_motor_speed(speed: int, dev: str = "dev00") -> None:
+    speed = max(0, min(255, int(speed)))
+    state.motorSpeedValue = speed
+    send_command(dev, f"SPEED:{speed}")
+
+
+# ─────────────────────────────────────────────
+# Independent per-motor drive (tank-style QAWS scheme). Signed speed,
+# positive = forward; goes through send_command so the motor lock
+# interlock above still applies.
+# ─────────────────────────────────────────────
+
+def set_left_motor(speed: int, dev: str = "dev00") -> None:
+    speed = max(-255, min(255, int(speed)))
+    send_command(dev, f"LMOTOR:{speed}")
+
+
+def set_right_motor(speed: int, dev: str = "dev00") -> None:
+    speed = max(-255, min(255, int(speed)))
+    send_command(dev, f"RMOTOR:{speed}")
+
+
+# ─────────────────────────────────────────────
 # Close all
 # ─────────────────────────────────────────────
 
 def close_all_arduinos():
 
-    for dev,ser in arduinos.items():
+    # Snapshot with list() — the daemon read_loop threads mutate this same
+    # dict concurrently (pop on serial error, reassign on reconnect), which
+    # raises "dictionary changed size during iteration" mid-shutdown and was
+    # crashing emergency_stop_all() before it could finish (main.py would
+    # then exit non-cleanly, restart, and reset motor_lock to True).
+    for dev,ser in list(arduinos.items()):
 
         try:
             ser.close()
@@ -362,3 +456,32 @@ def close_all_arduinos():
         except Exception as e:
 
             print(f"⚠ close error {dev}: {e}")
+
+
+# ─────────────────────────────────────────────
+# Emergency stop — called on program exit (clean or crash) so a
+# self-driving mode (AUTONOMOUS/obstacleAvoidance, line follower, watchdog)
+# never keeps the Arduino moving after the Pi-side controller is gone.
+# Bypasses the motor lock and mode machinery entirely since this must work
+# even if state got corrupted or main.py died mid-startup.
+# ─────────────────────────────────────────────
+
+def emergency_stop_all():
+    ser = arduinos.get("dev00")
+    if ser and ser.is_open:
+        for cmd in ("AUTO_OFF", "STOP"):
+            try:
+                ser.write((cmd + "\n").encode())
+                print(f"🛑 dev00 ← {cmd}")
+            except Exception as e:
+                print(f"⚠ emergency stop failed dev00 '{cmd}': {e}")
+
+    ser01 = arduinos.get("dev01")
+    if ser01 and ser01.is_open:
+        try:
+            ser01.write(b"LIGHT_FRONT_ON\n")
+            ser01.write(b"LIGHT_BACK_OFF\n")
+        except Exception as e:
+            print(f"⚠ emergency stop failed dev01: {e}")
+
+    close_all_arduinos()

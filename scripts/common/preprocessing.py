@@ -76,10 +76,11 @@ def improve_input_audio(audio, vad=True, low_audio_gain = True):
     """
     
     # print(f"Max audio level: {np.max(audio)}")
-    if (low_audio_gain == True) and (np.max(audio) < 0.1):
-        if np.max(audio) < 0.1:
-            audio = apply_gain(audio, gain_db=20)  # Increase by 15 dB
-        elif np.max(audio) < 0.2:
+    if low_audio_gain:
+        max_level = np.max(audio)
+        if max_level < 0.1:
+            audio = apply_gain(audio, gain_db=20)  # Increase by 20 dB
+        elif max_level < 0.2:
             audio = apply_gain(audio, gain_db=10)  # Increase by 10 dB
         print(f"New max audio level: {np.max(audio)}")
 

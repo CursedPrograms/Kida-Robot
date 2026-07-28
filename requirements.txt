@@ -1,38 +1,47 @@
-playsound
-openai-whisper
-sounddevice==0.5.1
-numpy
-SpeechRecognition
-pygame
-requests
-elevenlabs==0.2.26
-torch==2.6.0
-torchaudio
-gTTS
-soundfile
-sseclient
-RPi.GPIO
-flask
-psutil
-opencv-python
-picamera2
-smbus2
-jinja2
-Werkzeug
-itsdangerous
-click
-pyserial
-ultralytics
-loguru
-scipy==1.9.3
-lap
-cython_bbox
-transformers==4.50.1
-tqdm
-deepface
-pillow
-sounddevice==0.5.1
-tqdm
-tf-keras
-faster-whisper
+# KIDA Robot — Python dependencies
+# Install via: pip install -r requirements.txt
+#
+# NOTE: picamera2, RPi.GPIO, and Hailo SDK are best installed via apt on Pi OS:
+#   sudo apt install python3-picamera2 python3-rpi.gpio hailo-all imx500-models
 
+# ── Web server ──────────────────────────────────────────────────────────────
+flask>=3.1
+flask-cors>=6.0
+requests>=2.33
+zeroconf>=0.115
+
+# ── Hardware I/O ────────────────────────────────────────────────────────────
+RPi.GPIO
+smbus2
+pyserial
+gpiozero
+psutil
+
+# ── Camera ──────────────────────────────────────────────────────────────────
+picamera2
+opencv-python>=4.8
+
+# ── Display / UI ────────────────────────────────────────────────────────────
+pygame>=2.6
+pillow>=10.0
+
+# ── AI / Object detection ───────────────────────────────────────────────────
+ultralytics>=8.0
+torch>=2.0
+torchaudio
+numpy>=1.24
+
+# ── Audio ───────────────────────────────────────────────────────────────────
+sounddevice>=0.4
+soundfile
+pyaudio
+
+# ── Voice pipeline ──────────────────────────────────────────────────────────
+faster-whisper
+transformers>=4.40
+tqdm
+
+# ── Utilities ───────────────────────────────────────────────────────────────
+pyyaml
+loguru
+scipy>=1.9

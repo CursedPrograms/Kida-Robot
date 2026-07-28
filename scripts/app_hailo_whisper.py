@@ -4,6 +4,8 @@ import time
 import argparse
 import os
 import sys
+
+AUDIO_SNIPPETS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "audio", "snippets")
 from hailo_whisper_pipeline import HailoWhisperPipeline
 from common.audio_utils import load_audio
 from common.preprocessing import preprocess, improve_input_audio
@@ -13,7 +15,6 @@ from whisper_hef_registry import HEF_REGISTRY
 
 
 DURATION = 5  # recording duration in seconds
-
 
 def get_args():
     """
@@ -88,7 +89,7 @@ def main():
 
     whisper_hailo = HailoWhisperPipeline(encoder_path, decoder_path, variant, multi_process_service=args.multi_process_service)
     print("Hailo Whisper pipeline initialized.")
-    audio_path = "sampled_audio.wav"
+    audio_path = os.path.join(AUDIO_SNIPPETS_DIR, "sampled_audio.wav")
     is_nhwc = True
 
     chunk_length = 10 if variant == "tiny" else 5

@@ -21,7 +21,9 @@ SAMPLE_RATE = 16000
 CHANNELS = 1
 DURATION = 5
 FRAMES_PER_BUFFER = 4096
-AUDIO_PATH = "sampled_audio.wav"
+AUDIO_PATH = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)), "..", "..", "..", "..", "audio", "snippets", "sampled_audio.wav"
+)
 MIC_ICON_PATH = "./gui/microphone.svg"
 LOGO_LEFT_PATH = "./gui/hailo_logo.png"
 

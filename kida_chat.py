@@ -44,7 +44,7 @@ LLM_TEMPERATURE = 0.95
 
 PIPER_BIN   = "/usr/bin/piper"
 PIPER_MODEL  = "/home/kida-01/Desktop/Kida-Robot/resources/tts/en_US-hfc_female-medium.onnx"
-AUDIO_PATH  = "/home/kida-01/Desktop/Kida-Robot/sampled_audio.wav"
+AUDIO_PATH  = "/home/kida-01/Desktop/Kida-Robot/audio/snippets/sampled_audio.wav"
 
 # Character personality
 _CHAR_FILE = "/home/kida-01/Desktop/Kida-Robot/scripts/character_description.txt"

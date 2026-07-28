@@ -21,7 +21,13 @@ CHARACTER_FOLDER = "/home/kida-01/Desktop/Kida-Robot/images/characters"
 BACKGROUND_IMAGE = "/home/kida-01/Desktop/Kida-Robot/images/background.jpeg"
 
 # Motor
-DEFAULT_SPEED = 200
-SPEED_STEP = 50
 MAX_SPEED = 255
+DEFAULT_SPEED = MAX_SPEED   # always start at full speed
+SPEED_STEP = 50
 MIN_SPEED = 100
+
+# Motor lock — password required to unlock (see motor_lock.py)
+MOTOR_LOCK_PASSWORD = "1234"
+
+# Bluetooth
+BLUETOOTH_NAME = "KIDA01"
