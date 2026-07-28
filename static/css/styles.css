@@ -1,0 +1,526 @@
+/* styles.css — KIDA web HUD, mirrors the PyGame ui.py dark theme */
+
+:root {
+  --bg:         #07090f;
+  --panel:      #0a0e1a;
+  --border:     #1e3458;
+  --accent:     #6496e6;
+  --text:       #a0b8e8;
+  --text-dim:   #4a5f80;
+  --text-val:   #d7e6ff;
+  --green:      #46d764;
+  --orange:     #ffbe50;
+  --red:        #c84040;
+  --radius:     6px;
+  --font:       'Courier New', Courier, monospace;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  overflow-x: hidden;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 13px;
+  min-height: 100vh;
+}
+
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* ── Rotate-to-landscape gate ──────────────────────────────────
+   This HUD is a landscape layout (side-by-side cameras + a wide
+   controls rail) that doesn't usefully reflow into a phone's portrait
+   width. Rather than fight that with an ever-narrower single-column
+   stack, block interaction in portrait and ask for a rotate — the
+   dashboard itself only renders once the device (or a resized desktop
+   window) is actually in landscape. `pointer: coarse` scopes this to
+   touchscreens so a tall, narrow desktop browser window isn't gated. */
+#rotate-overlay { display: none; }
+
+@media (orientation: portrait) and (pointer: coarse) {
+  #app { display: none; }
+  #rotate-overlay {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    position: fixed;
+    inset: 0;
+    background: var(--bg);
+    color: var(--text);
+    text-align: center;
+    padding: 24px;
+    z-index: 999;
+  }
+  #rotate-icon {
+    font-size: 48px;
+    color: var(--accent);
+    animation: rotate-hint 1.6s ease-in-out infinite;
+  }
+  #rotate-msg { font-size: 14px; line-height: 1.6; color: var(--text); }
+}
+
+@keyframes rotate-hint {
+  0%, 100% { transform: rotate(0deg); }
+  50%      { transform: rotate(-90deg); }
+}
+
+/* ── App shell ─────────────────────────────────────────────── */
+#app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  padding: 8px;
+  gap: 6px;
+}
+
+/* ── Header ────────────────────────────────────────────────── */
+/* app-name's auto right-margin pushes self-tag + lock button into a
+   cluster at the end of the row; flex-wrap lets that cluster drop to its
+   own line on narrow screens without any percentage-width flex children
+   (a nested column-flex + width:100% combination here made the lock
+   button vanish entirely in testing — this simpler pattern doesn't). */
+#header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  row-gap: 4px;
+  column-gap: 10px;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 4px;
+  color: var(--accent);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+}
+#app-name { font-size: 14px; font-weight: bold; color: var(--text); margin-right: auto; }
+#self-tag  { color: var(--text-dim); }
+
+/* ── Cameras ───────────────────────────────────────────────── */
+#cameras {
+  display: flex;
+  gap: 8px;
+  flex: 0 0 auto;
+}
+
+.cam-panel {
+  flex: 1;
+  position: relative;
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  background: #080a12;
+  overflow: hidden;
+  aspect-ratio: 4/3;
+  max-height: 160px;
+}
+
+.face-panel {
+  flex: 0 0 160px;
+  aspect-ratio: 1/1;
+}
+
+.cam-panel.cam-active {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent) inset;
+}
+
+.cam-label {
+  position: absolute;
+  top: 5px;
+  left: 6px;
+  font-size: 11px;
+  color: var(--accent);
+  z-index: 2;
+  pointer-events: none;
+}
+
+.cam-feed {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.no-signal {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  color: var(--text-dim);
+  font-size: 13px;
+}
+
+/* ── Status strip ──────────────────────────────────────────── */
+#status-strip {
+  background: rgba(7, 11, 20, 0.93);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 5px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 0 0 auto;
+}
+
+.power-row { color: var(--green); font-size: 12px; }
+
+.status-row {
+  color: var(--text);
+  font-size: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  align-items: center;
+}
+
+.hint-row {
+  color: var(--text-dim);
+  font-size: 11px;
+}
+
+.mode-badge {
+  font-weight: bold;
+  padding: 1px 6px;
+  border-radius: 3px;
+  background: rgba(100, 150, 230, 0.15);
+}
+.mode-KEYBOARD      { color: #64dc8c; }
+.mode-IR_REMOTE     { color: #64b4ff; }
+.mode-AUTONOMOUS    { color: var(--orange); }
+.mode-LINE_FOLLOWER { color: #c864ff; }
+.mode-WATCHDOG      { color: #ff5050; }
+.mode-IDLE          { color: var(--red); }
+
+/* ── Bottom ────────────────────────────────────────────────── */
+#bottom {
+  display: flex;
+  gap: 8px;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* ── Sensor grid ───────────────────────────────────────────── */
+#sensor-grid {
+  flex: 1;
+  background: rgba(7, 11, 20, 0.93);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 8px 10px;
+  overflow-y: auto;
+}
+
+#sensor-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+#sensor-table td {
+  padding: 2px 4px;
+  white-space: nowrap;
+}
+
+.slbl {
+  color: #6482b9;
+  font-size: 12px;
+  width: 60px;
+}
+
+.sval {
+  color: var(--text-val);
+  font-size: 12px;
+  width: 140px;
+  padding-right: 20px;
+}
+
+/* ── Controls panel ────────────────────────────────────────── */
+#controls-panel {
+  width: 270px;
+  flex: 0 0 270px;
+  background: rgba(10, 14, 26, 0.93);
+  border: 1px solid #2a3e64;
+  border-radius: var(--radius);
+  padding: 8px 10px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.panel-title {
+  color: var(--accent);
+  font-size: 14px;
+  font-weight: bold;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 4px;
+}
+
+.ctrl-group { display: flex; flex-direction: column; gap: 3px; }
+
+.ctrl-label {
+  color: var(--text-dim);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 1px;
+}
+
+.ctrl-row {
+  color: var(--text);
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+kbd {
+  display: inline-block;
+  background: #141c30;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 0px 5px;
+  font-family: var(--font);
+  font-size: 11px;
+  color: var(--text-val);
+  min-width: 22px;
+  text-align: center;
+}
+
+/* ── Music badge ───────────────────────────────────────────── */
+.mus-badge {
+  font-size: 12px;
+  color: var(--text-dim);
+}
+.mus-badge.playing { color: var(--green); }
+
+/* ── Divider ───────────────────────────────────────────────── */
+.divider {
+  border-top: 1px solid var(--border);
+  margin: 4px 0;
+}
+
+/* ── Action buttons ────────────────────────────────────────── */
+.btn-row {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  margin-top: 2px;
+}
+
+.act-btn {
+  background: #141c30;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 11px;
+  padding: 4px 8px;
+  cursor: pointer;
+  transition: background 0.1s, border-color 0.1s;
+  white-space: nowrap;
+}
+.act-btn:hover  { background: #1e2f50; border-color: var(--accent); }
+.act-btn:active { background: var(--accent); color: var(--bg); }
+
+.act-btn.act-danger { color: var(--red);    border-color: #5a2020; }
+.act-btn.act-danger:hover { border-color: var(--red); }
+
+.act-btn.act-music  { color: var(--green);  border-color: #1a4030; }
+.act-btn.act-music:hover  { border-color: var(--green); }
+
+.act-btn.act-auto   { color: var(--orange); border-color: #4a3010; }
+.act-btn.act-auto:hover   { border-color: var(--orange); }
+
+.act-btn.act-lf     { color: #c864ff;       border-color: #3a1060; }
+.act-btn.act-lf:hover     { border-color: #c864ff; }
+
+.act-btn.act-watch  { color: #ff5050;       border-color: #601010; }
+.act-btn.act-watch:hover  { border-color: #ff5050; }
+
+.act-btn.act-cam    { color: #64c8ff;       border-color: #103a5a; }
+.act-btn.act-cam:hover    { border-color: #64c8ff; }
+
+.act-btn.act-voice  { color: #ffcf40;       border-color: #5a4a10; }
+.act-btn.act-voice:hover  { border-color: #ffcf40; }
+.act-btn.act-voice.active { background: #5a4a10; border-color: #ffcf40; }
+.act-btn.act-voice.recording {
+  color: var(--red);
+  border-color: var(--red);
+  animation: pulse-recording 1s ease-in-out infinite;
+}
+
+@keyframes pulse-recording {
+  0%, 100% { background: #141c30; }
+  50%      { background: #3a1414; }
+}
+
+#voice-transcript {
+  color: var(--text-val);
+  font-size: 11px;
+  white-space: normal;
+  word-break: break-word;
+}
+
+/* ── Mode dropdown ──────────────────────────────────────────── */
+.mode-row {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  margin-top: 2px;
+}
+
+.mode-select {
+  flex: 1;
+  background: #141c30;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 11px;
+  padding: 4px 6px;
+  cursor: pointer;
+  appearance: none;
+}
+.mode-select:focus { outline: none; border-color: var(--accent); }
+.mode-select option { background: #0a0e1a; }
+
+.act-btn.act-go {
+  color: var(--accent);
+  border-color: var(--border);
+  padding: 4px 10px;
+  font-weight: bold;
+}
+
+/* ── Peer network ──────────────────────────────────────────── */
+.peer-row { gap: 6px; }
+.dot { font-size: 10px; }
+.dot-green { color: var(--green); }
+.dot-red   { color: var(--red); }
+.peer-status { color: var(--text-dim); font-size: 11px; margin-left: auto; }
+
+/* ── Drive pad (touch/mouse) ───────────────────────────────── */
+.dpad {
+  display: grid;
+  grid-template-columns: repeat(3, 44px);
+  grid-template-rows: repeat(3, 44px);
+  grid-template-areas:
+    ".    up    ."
+    "left stop  right"
+    ".    down  .";
+  gap: 4px;
+  margin: 2px auto;
+  justify-content: center;
+}
+.dpad-btn {
+  background: #141c30;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--accent);
+  font-size: 16px;
+  cursor: pointer;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.dpad-btn:active,
+.dpad-btn.pressed { background: var(--accent); color: var(--bg); }
+.dpad-up    { grid-area: up; }
+.dpad-left  { grid-area: left; }
+.dpad-right { grid-area: right; }
+.dpad-down  { grid-area: down; }
+.dpad-stop  { grid-area: stop; color: var(--red); }
+
+.act-btn.act-sys   { color: #ffcf40; border-color: #5a4a10; }
+.act-btn.act-sys:hover   { border-color: #ffcf40; }
+.act-btn.act-speed { color: var(--orange); border-color: #4a3010; }
+.act-btn.act-speed:hover { border-color: var(--orange); }
+
+.act-btn.act-scheme { color: #c864ff; border-color: #3a1060; width: 100%; }
+.act-btn.act-scheme:hover { border-color: #c864ff; }
+.act-btn.act-scheme.tank { color: var(--orange); border-color: #4a3010; }
+.act-btn.act-scheme.tank:hover { border-color: var(--orange); }
+
+/* ── Lock button ───────────────────────────────────────────── */
+.act-btn.act-lock {
+  color: var(--red);
+  border-color: #5a2020;
+  font-weight: bold;
+}
+.act-btn.act-lock:hover { border-color: var(--red); }
+.act-btn.act-lock.unlocked {
+  color: var(--green);
+  border-color: #1a4030;
+}
+.act-btn.act-lock.unlocked:hover { border-color: var(--green); }
+
+/* ── Scrollbar ─────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+/* ── Responsive breakpoints ────────────────────────────────── */
+
+/* Tablets / small laptops: allow cameras to wrap 2-up and stack
+   the sensor grid + controls panel instead of squeezing 3 columns
+   onto a narrow viewport. Also triggers on short-height landscape
+   phones (width alone doesn't catch these — many land in the 600-950px
+   landscape-width range, above the 900px cutoff) — without this, #app's
+   fixed 100vh height + #bottom's overflow:hidden clipped content with
+   no way to scroll to it, since a landscape phone often doesn't have
+   the vertical room to fit everything in one viewport height. */
+@media (max-width: 900px), (max-height: 500px) {
+  #app { height: auto; min-height: 100vh; }
+
+  #cameras {
+    flex-wrap: wrap;
+  }
+  .cam-panel {
+    flex: 1 1 45%;
+    max-height: 220px;
+  }
+  .face-panel {
+    flex: 1 1 45%;
+  }
+
+  #bottom {
+    flex-direction: column;
+    overflow: visible;
+  }
+  #sensor-grid { flex: 0 0 auto; }
+  #controls-panel {
+    width: 100%;
+    flex: 0 0 auto;
+  }
+
+  .status-row { font-size: 11px; gap: 10px; }
+}
+
+/* Phones: cameras stay a compact 2-up grid (not 4 full-height panels
+   stacked, which buried everything else dozens of scroll-lengths down —
+   see the header's lock button move for the other half of that fix),
+   full-width everything, larger tap targets on buttons. */
+@media (max-width: 520px) {
+  #app { padding: 6px; gap: 5px; }
+
+  #cameras { gap: 6px; }
+  .cam-panel,
+  .face-panel {
+    flex: 1 1 45%;
+    max-height: 170px;
+    aspect-ratio: 4/3;
+  }
+  .face-panel { aspect-ratio: 4/3; }
+
+  #sensor-table td { white-space: normal; }
+  .sval { width: auto; }
+
+  .btn-row { gap: 6px; }
+  .act-btn { padding: 8px 10px; font-size: 12px; }
+  .mode-select { padding: 8px 6px; font-size: 12px; }
+}

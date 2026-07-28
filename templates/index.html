@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ this_name }} — KIDA HUD</title>
+  <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+  <!-- Blocked in portrait (see styles.css) — this HUD is laid out for
+       landscape (cameras side by side, wide controls panel) and doesn't
+       fit/scroll usefully in a narrow portrait viewport. -->
+  <div id="rotate-overlay">
+    <div id="rotate-icon">&#8635;</div>
+    <div id="rotate-msg">Rotate your device to landscape<br>to use the KIDA dashboard</div>
+  </div>
+
+  <div id="app">
+
+    <!-- ── Header ───────────────────────────────────────────── -->
+    <div id="header">
+      <span id="app-name">KIDA: Kinetic Interactive Drive Automaton</span>
+      <span id="self-tag">{{ this_name }} &nbsp;·&nbsp; {{ this_ip }}:{{ this_port }}</span>
+      <button class="act-btn act-lock" id="lock-btn">🔒 Locked</button>
+    </div>
+
+    <!-- ── Cameras ──────────────────────────────────────────── -->
+    <div id="cameras">
+      <div class="cam-panel face-panel">
+        <div class="cam-label">KIDA</div>
+        <img class="cam-feed" src="/character_face" alt=""
+             onerror="this.style.display='none';document.getElementById('nosig-face').style.display='flex'">
+        <div class="no-signal" id="nosig-face">[ NO FACE IMAGE ]</div>
+      </div>
+      <div class="cam-panel" id="cam-slot-1">
+        <div class="cam-label">SLOT 1 — AI CAM</div>
+        <img class="cam-feed" src="/video_feed/1" alt=""
+             onerror="this.style.display='none';document.getElementById('nosig1').style.display='flex'">
+        <div class="no-signal" id="nosig1">[ SLOT 1 — AI CAM — NO SIGNAL ]</div>
+      </div>
+      <div class="cam-panel" id="cam-slot-0">
+        <div class="cam-label">SLOT 0 — MAIN</div>
+        <img class="cam-feed" src="/video_feed/0" alt=""
+             onerror="this.style.display='none';document.getElementById('nosig0').style.display='flex'">
+        <div class="no-signal" id="nosig0">[ SLOT 0 — MAIN — NO SIGNAL ]</div>
+      </div>
+      <div class="cam-panel">
+        <div class="cam-label">LAST PHOTO</div>
+        <img class="cam-feed" id="last-photo-feed" src="/last_photo" alt=""
+             onerror="this.style.display='none';document.getElementById('nosig-photo').style.display='flex'"
+             onload="this.style.display='';document.getElementById('nosig-photo').style.display='none'">
+        <div class="no-signal" id="nosig-photo">[ NO PHOTO YET ]</div>
+      </div>
+    </div>
+
+    <!-- ── Status strip ─────────────────────────────────────── -->
+    <div id="status-strip">
+      <div class="power-row" id="power-row">⚡ —V &nbsp; —A &nbsp; —W &nbsp; 🔋 —%</div>
+      <div class="status-row">
+        <span id="st-spd">Spd:—</span>
+        <span id="st-temp">T:—</span>
+        <span id="st-cpu">CPU:—%</span>
+        <span id="st-ram">RAM:—%</span>
+        <span id="st-ip">IP:—</span>
+        <span id="st-inf">Inf:—</span>
+        <span id="st-mus" class="mus-badge">♪ —</span>
+        <span>Mode:</span><span id="st-mode" class="mode-badge">—</span>
+      </div>
+      <div class="hint-row">1=KB &nbsp; 2=IR &nbsp; 3=AUTO &nbsp; 4=IDLE &nbsp; 5=LINE &nbsp; 6=WATCH</div>
+    </div>
+
+    <!-- ── Bottom: sensor grid + controls ───────────────────── -->
+    <div id="bottom">
+
+      <!-- Sensor grid -->
+      <div id="sensor-grid">
+        <table id="sensor-table">
+          <tbody>
+            <tr>
+              <td class="slbl">Photo:</td>  <td class="sval" id="s-Photo">—</td>
+              <td class="slbl">US0:</td>    <td class="sval" id="s-US0">—</td>
+            </tr>
+            <tr>
+              <td class="slbl">UV:</td>     <td class="sval" id="s-UV">—</td>
+              <td class="slbl">US1:</td>    <td class="sval" id="s-US1">—</td>
+            </tr>
+            <tr>
+              <td class="slbl">Metal:</td>  <td class="sval" id="s-Metal">—</td>
+              <td class="slbl">AX:</td>     <td class="sval" id="s-AX">—</td>
+            </tr>
+            <tr>
+              <td class="slbl">Ball Sw:</td><td class="sval" id="s-Ball Sw">—</td>
+              <td class="slbl">AY:</td>     <td class="sval" id="s-AY">—</td>
+            </tr>
+            <tr>
+              <td class="slbl">Motion:</td> <td class="sval" id="s-Motion">—</td>
+              <td class="slbl">AZ:</td>     <td class="sval" id="s-AZ">—</td>
+            </tr>
+            <tr>
+              <td class="slbl">LF L:</td>   <td class="sval" id="s-LF L">—</td>
+              <td class="slbl">GX:</td>     <td class="sval" id="s-GX">—</td>
+            </tr>
+            <tr>
+              <td class="slbl">LF M:</td>   <td class="sval" id="s-LF M">—</td>
+              <td class="slbl">GY:</td>     <td class="sval" id="s-GY">—</td>
+            </tr>
+            <tr>
+              <td class="slbl">LF R:</td>   <td class="sval" id="s-LF R">—</td>
+              <td class="slbl">GZ:</td>     <td class="sval" id="s-GZ">—</td>
+            </tr>
+            <tr>
+              <td class="slbl">Laser:</td>  <td class="sval" id="s-Laser">—</td>
+              <td class="slbl">Status:</td> <td class="sval" id="s-Status">—</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Controls panel -->
+      <div id="controls-panel">
+        <div class="panel-title">CONTROLS</div>
+
+        <!-- Touch/mouse drive pad — works without a physical keyboard -->
+        <div class="ctrl-group">
+          <div class="ctrl-label">Drive Pad</div>
+          <div class="dpad">
+            <button class="dpad-btn dpad-up"    data-drive="move_forward">▲</button>
+            <button class="dpad-btn dpad-left"  data-drive="move_left">◀</button>
+            <button class="dpad-btn dpad-stop act-btn" data-cmd="hard_stop">■</button>
+            <button class="dpad-btn dpad-right" data-drive="move_right">▶</button>
+            <button class="dpad-btn dpad-down"  data-drive="move_backward">▼</button>
+          </div>
+          <div class="btn-row">
+            <button class="act-btn act-speed" data-cmd="speed_down">🐢 Speed −</button>
+            <button class="act-btn act-speed" data-cmd="speed_up">🐇 Speed +</button>
+          </div>
+          <div class="btn-row">
+            <button class="act-btn act-scheme" id="scheme-btn">🎮 Scheme: WASD</button>
+          </div>
+        </div>
+
+        <!-- Keyboard shortcuts reference -->
+        <div class="ctrl-group">
+          <div class="ctrl-label">Drive — WASD scheme</div>
+          <div class="ctrl-row"><kbd>W</kbd> Forward &nbsp; <kbd>S</kbd> Backward</div>
+          <div class="ctrl-row"><kbd>A</kbd> Rotate Left &nbsp; <kbd>D</kbd> Rotate Right</div>
+        </div>
+        <div class="ctrl-group">
+          <div class="ctrl-label">Drive — Tank (QAWS) scheme</div>
+          <div class="ctrl-row"><kbd>Q</kbd> Left Fwd &nbsp; <kbd>A</kbd> Left Back</div>
+          <div class="ctrl-row"><kbd>W</kbd> Right Fwd &nbsp; <kbd>S</kbd> Right Back</div>
+        </div>
+        <div class="ctrl-group">
+          <div class="ctrl-label">Drive — always on</div>
+          <div class="ctrl-row"><kbd>X</kbd> Cycle Speed &nbsp; <kbd>SPC</kbd> Hard Stop</div>
+          <div class="ctrl-row"><kbd>&lt;</kbd> WASD &nbsp; <kbd>&gt;</kbd> Tank</div>
+          <div class="ctrl-row"><kbd>[</kbd> Prev Mode &nbsp; <kbd>]</kbd> Next Mode</div>
+        </div>
+        <div class="ctrl-group">
+          <div class="ctrl-label">System (keyboard)</div>
+          <div class="ctrl-row"><kbd>I</kbd> Toggle YOLO &nbsp; <kbd>M</kbd> Play/Skip Music</div>
+          <div class="ctrl-row"><kbd>L</kbd> Toggle LEDs &nbsp; <kbd>K</kbd> LED Effects</div>
+          <div class="ctrl-row"><kbd>U</kbd> Lock / Unlock Motors</div>
+        </div>
+
+        <div class="ctrl-group">
+          <div class="ctrl-label">System</div>
+          <div class="btn-row">
+            <button class="act-btn act-sys" data-cmd="leds_toggle">💡 LEDs</button>
+            <button class="act-btn act-sys" data-cmd="leds_effects_toggle">✨ LED FX</button>
+            <button class="act-btn act-sys" data-cmd="inference_toggle">👁 YOLO</button>
+            <button class="act-btn act-sys" data-cmd="save_inference">💾 Save Inf.</button>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- Drive mode dropdown -->
+        <div class="ctrl-group">
+          <div class="ctrl-label">Mode</div>
+          <div class="mode-row">
+            <select id="mode-select" class="mode-select">
+              <option value="mode_1">⌨  Keyboard</option>
+              <option value="mode_2">📡  IR Remote</option>
+              <option value="mode_3">🤖  Autonomous</option>
+              <option value="mode_5">〰  Line Follow</option>
+              <option value="mode_6">🚨  Watchdog</option>
+              <option value="mode_4">⏹  Idle / Stop</option>
+            </select>
+            <button class="act-btn act-go" id="mode-go-btn">Go</button>
+          </div>
+        </div>
+
+        <div class="ctrl-group">
+          <div class="ctrl-label">Voice</div>
+          <div class="btn-row">
+            <button class="act-btn act-voice" data-cmd="voice_mode_wakeword" id="voice-wakeword-btn">🔔 Wake Word</button>
+            <button class="act-btn act-voice" data-cmd="voice_mode_always_on" id="voice-always-on-btn">🎙 Always On</button>
+          </div>
+        </div>
+
+        <!-- Record on this device's own mic instead of the robot's — the
+             onboard USB mic can be too quiet; this uploads the clip and
+             runs it through the same Whisper pipeline. Needs HTTPS or a
+             localhost origin — browsers block mic access on plain HTTP
+             LAN addresses. -->
+        <div class="ctrl-group">
+          <div class="ctrl-label">Voice — record on this device</div>
+          <div class="btn-row">
+            <button class="act-btn act-voice" id="voice-record-btn">🎤 Record</button>
+          </div>
+          <div class="ctrl-row" id="voice-transcript" style="display:none;"></div>
+        </div>
+
+        <div class="ctrl-group">
+          <div class="ctrl-label">Music</div>
+          <div class="btn-row">
+            <button class="act-btn act-music" data-cmd="music_play" id="web-play-btn">▶ Play</button>
+            <button class="act-btn act-music" data-cmd="music_skip">⏭ Skip</button>
+            <button class="act-btn act-music" data-cmd="music_stop">■ Stop</button>
+          </div>
+        </div>
+
+        <div class="ctrl-group">
+          <div class="ctrl-label">Camera</div>
+          <div class="btn-row">
+            <button class="act-btn act-cam" data-cmd="photo">📸 Photo</button>
+            <button class="act-btn act-cam" data-cmd="video_start">🎥 Record</button>
+            <button class="act-btn act-cam" data-cmd="video_stop">⏹ Stop Rec</button>
+            <button class="act-btn act-cam" data-cmd="camera_switch">🔄 Switch Cam</button>
+          </div>
+        </div>
+
+        <!-- Peer network status -->
+        {% if peers %}
+        <div class="ctrl-group">
+          <div class="ctrl-label">Network</div>
+          {% for name, peer in peers.items() %}
+          <div class="ctrl-row peer-row">
+            <span class="dot {{ 'dot-green' if peer.ok else 'dot-red' }}">●</span>
+            <a href="{{ peer.url }}" target="_blank" rel="noopener noreferrer">{{ name }}</a>
+            <span class="peer-status">{{ peer.status }}</span>
+          </div>
+          {% endfor %}
+        </div>
+        {% endif %}
+      </div>
+
+    </div><!-- /bottom -->
+  </div><!-- /app -->
+
+  <script src="/static/js/main.js"></script>
+</body>
+</html>

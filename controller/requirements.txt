@@ -1,0 +1,9 @@
+# KIDA remote controller — Python dependencies
+# Deliberately light: no picamera2, RPi.GPIO, ultralytics, or Hailo SDK —
+# this runs on a separate PC with no robot hardware attached.
+# Install via: pip install -r requirements.txt
+
+pygame>=2.6
+requests>=2.33
+opencv-python>=4.8
+numpy>=1.24
