@@ -42,14 +42,13 @@ SENSOR_ROWS = [
 
 def compute_layout(sw: int, sh: int) -> dict:
     """
-    Four panels in a row, left to right: character face, cam-1, cam-0,
-    last photo. The face panel is forced square (1:1) — its width equals
-    the row height — and the other three share whatever width is left.
+    Four equal-size panels in a row, left to right: character face, cam-1,
+    cam-0, last photo. All four share the same width and height.
     """
     cam_top = CAM_PAD
     cam_h   = int(sh * CAM_H_FRAC)
-    face_w  = cam_h
-    cam_w   = (sw - CAM_PAD * 5 - face_w) // 3
+    face_w  = (sw - CAM_PAD * 5) // 4
+    cam_w   = face_w
 
     face_rect  = pygame.Rect(CAM_PAD,                          cam_top, face_w, cam_h)
     cam1_rect  = pygame.Rect(CAM_PAD * 2 + face_w,             cam_top, cam_w,  cam_h)

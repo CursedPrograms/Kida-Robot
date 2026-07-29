@@ -10,8 +10,8 @@ ARDUINO_PORT = "/dev/ttyUSB0"
 ARDUINO_BAUD = 9600
 
 # Camera
-IMAGE_DIR = "images"
-VIDEO_DIR = "videos"
+IMAGE_DIR = "captures/images"
+VIDEO_DIR = "captures/videos"
 CAM_ROTATION = 0
 
 # UI

@@ -171,6 +171,9 @@ input.wav
 # Model/weight resources — see RESOURCES.md, fetch via download_resources.sh
 /resources/
 
+# Captured photos/videos (see scripts/config.py IMAGE_DIR/VIDEO_DIR) — local only
+/captures/
+
 # Personal working notes — local only
 /for claude
 /commands
