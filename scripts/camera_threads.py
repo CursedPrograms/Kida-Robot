@@ -81,8 +81,19 @@ def _camera_loop(picam2, model, task: str, queue: Queue,
                         (r.names[int(cls)], float(conf))
                         for cls, conf in zip(r.boxes.cls, r.boxes.conf)
                     ]
+                    # xyxyn = normalized (0-1) box coords, resolution-independent
+                    # so watchdog's zone check doesn't care about frame size.
+                    state.detection_boxes = [
+                        {
+                            "label": r.names[int(cls)],
+                            "conf": float(conf),
+                            "box": tuple(float(v) for v in box),
+                        }
+                        for cls, conf, box in zip(r.boxes.cls, r.boxes.conf, r.boxes.xyxyn)
+                    ]
                 else:
                     state.detection_labels = []
+                    state.detection_boxes = []
                 out = r.plot()
             else:
                 out = frame

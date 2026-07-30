@@ -14,6 +14,13 @@ IMAGE_DIR = "captures/images"
 VIDEO_DIR = "captures/videos"
 CAM_ROTATION = 0
 
+# Watchdog zone — normalized (0-1) (x1, y1, x2, y2) box within cam-0's frame
+# that a detected person's center must fall inside to trigger the alarm.
+# Default is the full frame (no change from plain "any person, anywhere").
+# Narrow this to watch a specific area, e.g. a doorway on the right half:
+#   WATCHDOG_ZONE = (0.5, 0.0, 1.0, 1.0)
+WATCHDOG_ZONE = (0.0, 0.0, 1.0, 1.0)
+
 # UI
 SCREEN_SIZE = (1000, 500)
 IMAGE_SIZE = (300, 300)

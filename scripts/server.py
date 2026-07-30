@@ -10,6 +10,8 @@ import requests
 from flask import Flask, render_template, Response, jsonify, request, send_file
 from zeroconf import ServiceInfo, Zeroconf, ServiceBrowser
 
+import fleet_register
+
 _here = os.path.dirname(os.path.abspath(__file__))
 app = Flask(
     __name__,
@@ -229,6 +231,7 @@ def voice_upload():
 
 # ── Entry point ──────────────────────────────────────────────────────────────────
 def run_flask_server():
+    fleet_register.start_fleet_heartbeat(THIS_NAME)
     try:
         app.run(host='0.0.0.0', port=THIS_PORT, debug=False, threaded=True)
     finally:

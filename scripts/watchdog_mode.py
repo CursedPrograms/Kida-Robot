@@ -1,8 +1,10 @@
 # watchdog_mode.py — person-detection alarm mode
 #
 # When active: YOLO inference runs on cam-0.  If a "person" class is detected
-# the LEDs strobe and an alarm beep plays through pygame.  No motor commands
-# are sent — the robot stays still and watches.
+# with its box center inside config.WATCHDOG_ZONE, the LEDs strobe and an
+# alarm beep plays through pygame.  No motor commands are sent — the robot
+# stays still and watches. WATCHDOG_ZONE defaults to the full frame (any
+# person, anywhere); narrow it in config.py to watch e.g. just a doorway.
 
 import threading
 import time
@@ -10,6 +12,7 @@ import logging
 
 import state
 import leds
+import config
 
 logger = logging.getLogger(__name__)
 
@@ -45,11 +48,16 @@ def _get_alarm_sound():
     return _alarm_sound
 
 
-def _person_detected() -> bool:
-    return any(
-        name.lower() == "person"
-        for name, _ in state.detection_labels
-    )
+def _person_in_zone() -> bool:
+    zx1, zy1, zx2, zy2 = config.WATCHDOG_ZONE
+    for det in state.detection_boxes:
+        if det["label"].lower() != "person":
+            continue
+        x1, y1, x2, y2 = det["box"]
+        cx, cy = (x1 + x2) / 2, (y1 + y2) / 2
+        if zx1 <= cx <= zx2 and zy1 <= cy <= zy2:
+            return True
+    return False
 
 
 def _run():
@@ -62,15 +70,15 @@ def _run():
     sound = _get_alarm_sound()
 
     while not _stop_event.is_set():
-        if _person_detected():
+        if _person_in_zone():
             now = time.time()
             last_seen_time = now
             if not alarm_active:
                 alarm_active = True
                 leds.start_alarm_strobe()
-                logger.info("⚠ PERSON DETECTED — alarm triggered")
-                print("🚨 Watchdog: PERSON DETECTED")
-            state.systemStatus = "Watchdog: PERSON DETECTED ⚠"
+                logger.info("⚠ PERSON ENTERED WATCH ZONE — alarm triggered")
+                print("🚨 Watchdog: PERSON ENTERED WATCH ZONE")
+            state.systemStatus = "Watchdog: PERSON IN ZONE ⚠"
             if sound and now - last_beep_time >= 0.22:
                 try:
                     sound.play()
@@ -84,7 +92,7 @@ def _run():
                 leds.stop_alarm_strobe()
                 state.systemStatus = "Watchdog: ARMED"
                 logger.info("Watchdog: alarm cleared")
-                print("✅ Watchdog: person gone — alarm cleared")
+                print("✅ Watchdog: zone clear — alarm cleared")
 
         time.sleep(POLL_INTERVAL)
 

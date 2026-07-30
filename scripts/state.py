@@ -58,6 +58,7 @@ systemStatus     = "SYSTEM: Booting..."
 
 # --- YOLO inference results (written by camera_threads, read by watchdog + LLM) ---
 detection_labels: list = []   # list of (class_name: str, confidence: float)
+detection_boxes: list = []    # list of dicts: {"label": str, "conf": float, "box": (x1, y1, x2, y2)} — box is normalized 0-1 (cam-0 frame, post-mirror)
 
 # --- IMX500 on-chip inference results (written by imx500_cam1.py) ---
 cam1_detection_labels: list = []   # list of (class_name: str, confidence: float)
